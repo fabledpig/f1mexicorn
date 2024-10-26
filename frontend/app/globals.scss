@@ -1,0 +1,11 @@
+@use '../css/colors' as colors;
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  color: colors.$white;
+  background: colors.$bg;
+  font-family: var(--font-geist-sans);
+}

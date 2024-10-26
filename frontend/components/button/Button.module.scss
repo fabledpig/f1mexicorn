@@ -1,0 +1,18 @@
+@use '../../css/colors';
+
+.button {
+  transition: background-color 2s;
+  border-radius: 10px;
+  border: 1px solid;
+  border-color: colors.$darker;
+  background-color: colors.$darker;
+  color: colors.$bg;
+  font-size: 1.4rem;
+  font-weight: 600;
+  padding: 20px 40px;
+}
+
+.button:hover {
+  transition: background-color 1s;
+  background-color: colors.$primary;
+}

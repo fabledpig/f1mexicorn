@@ -1,6 +1,7 @@
 'use client';
 
 import { memo, useCallback } from 'react';
+import Button from '../button/Button';
 
 const clientId = '169032501865-jiehcs4eprbf3ghm9tdut3heglr7pfsk.apps.googleusercontent.com';
 const redirectUri = 'http://localhost:3000/googlesso';
@@ -44,7 +45,7 @@ export default memo(function LoginComponent() {
 
   return (
     <>
-      <button onClick={onClick}>Login with Google SSO</button>
+      <Button onClick={onClick}>Login with Google SSO</Button>
     </>
   );
 });
