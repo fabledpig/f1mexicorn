@@ -1,6 +1,6 @@
 'use client';
 
-import { LOGIN_STATE_KEY, LoginState } from '@/components/Login';
+import { LOGIN_STATE_KEY, LoginState } from '@/components/login/Login';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { memo, useEffect } from 'react';
 

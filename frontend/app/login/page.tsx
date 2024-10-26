@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import LoginComponent from '../../components/Login';
+import LoginComponent from '../../components/login/Login';
 
 export default memo(function Login() {
   return (
