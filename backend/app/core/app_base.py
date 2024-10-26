@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from app.api.v1.api_router import api_router
 
+
 class Application(FastAPI):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
