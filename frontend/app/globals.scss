@@ -9,3 +9,8 @@ body {
   background: colors.$bg;
   font-family: var(--font-geist-sans);
 }
+
+::selection {
+  color: colors.$bg;
+  background-color: colors.$primary;
+}
