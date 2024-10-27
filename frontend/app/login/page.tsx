@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import styles from './styles.module.scss';
 
-import LoginComponent from '../../components/login/Login';
+import LoginComponent from '@/components/login/Login';
 
 export default memo(function Login() {
   return (
