@@ -1,25 +1,15 @@
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
 from google.oauth2 import id_token
 from google.auth.transport import requests
 import requests as req
-import json
 
 from app.utils.utils import get_google_auth_client_credentials
+from app.services import db_service
+from app.models.user import UserInfo, AuthorizationToken
 
 router = APIRouter()
 
 GOOGLE_AUTH_URL = "https://oauth2.googleapis.com/token"
-
-
-class AuthorizationToken(BaseModel):
-    auth_token: str
-
-
-class UserInfo(BaseModel):
-    user_id: str
-    email: str
-    name: str
 
 
 @router.post("/auth/google", response_model=UserInfo)
@@ -50,6 +40,9 @@ async def google_auth(request: AuthorizationToken):
             email=id_user_info.get("email"),
             name=id_user_info.get("name"),
         )
+
+        database = db_service.MYSQLDB()
+        database.add_user(user_info.email, user_info.name)
 
     except ValueError:
         raise HTTPException(
