@@ -16,7 +16,6 @@ class F1API:
 
     def __init__(self, year=None, country=None):
         self._year = year
-        self._country = country
 
     @property
     def year(self):
@@ -39,21 +38,21 @@ class F1API:
         response = requests.get(url, params=params)
         return response.json()
 
-    def get_meeting(self):
+    def get_meetings(self):
         params = {}
         if self._year:
             params["year"] = self._year
-        if self._country:
-            params["country_name"] = self._country
 
         return self._get("meetings", params)
 
-    def get_drivers(self):
-        return self._get("drivers")
+    def get_drivers(self, session_key):
+        params = {}
+        params["session_key"] = session_key
+        return self._get("drivers", params)
 
-    def get_session(self, session_name):
+    # only get
+    def get_sessions(self):
         params = {}
         if self._year:
             params["year"] = self._year
-        params[session_name] = session_name
         return self._get("sessions", params)

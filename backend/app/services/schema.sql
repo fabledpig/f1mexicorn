@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS drivers (
 CREATE TABLE IF NOT EXISTS races (
     race_id INT AUTO_INCREMENT PRIMARY KEY,
     race_name VARCHAR(100) NOT NULL,
+    race_type VARCHAR(100) NOT NULL,
     race_date DATE NOT NULL
 );
 
