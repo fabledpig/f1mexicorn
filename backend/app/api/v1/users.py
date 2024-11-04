@@ -51,16 +51,3 @@ async def google_auth(request: AuthorizationToken):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     return user_info
-
-
-@router.get("/users/", tags=["users"])
-async def read_users():
-    # from Google SSO data
-    return [
-        {"user_id": 1, "name": "Alice"},
-    ]
-
-
-@router.post("/users/", tags=["users"])
-async def create_user(name: str):
-    return {"user_id": 3, "name": name}

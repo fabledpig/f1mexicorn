@@ -45,9 +45,9 @@ class F1API:
 
         return self._get("meetings", params)
 
-    def get_drivers(self, session_key):
+    def get_drivers(self, meeting_key):
         params = {}
-        params["session_key"] = session_key
+        params["meeting_key"] = meeting_key
         return self._get("drivers", params)
 
     # only get
