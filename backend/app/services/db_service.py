@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, text
 from sqlmodel import SQLModel, Session, select
 from sqlalchemy.exc import SQLAlchemyError
 from app.utils.utils import get_database_credentials
-from app.models.sql_models import User, Driver, Race, RaceDriver, RaceResult, Guess
+from app.models.sql_models import User, Race, RaceDriver, RaceResult, Guess
 
 
 class MYSQLDB:
@@ -60,20 +60,14 @@ class MYSQLDB:
                 session.rollback()
                 print("Error adding user:", e)
 
-    def add_driver(self, driver_name, nationality, team):
+    def add_session_driver(self, session_key, driver_name, nationality, team):
         with self.get_session() as session:
             try:
-                existing_driver = session.exec(
-                    select(Driver).where(
-                        Driver.driver_name == driver_name,
-                        Driver.nationality == nationality,
-                    )
-                ).first()
-                if existing_driver:
-                    print(f"Driver '{driver_name}' already exists.")
-                    return
-                new_driver = Driver(
-                    driver_name=driver_name, nationality=nationality, team=team
+                new_driver = RaceDriver(
+                    race_id=session_key,
+                    driver_name=driver_name,
+                    nationality=nationality,
+                    team=team,
                 )
                 session.add(new_driver)
                 session.commit()
@@ -85,14 +79,6 @@ class MYSQLDB:
     def add_race(self, race_name, race_type, race_date, race_id=None):
         with self.get_session() as session:
             try:
-                existing_race = session.exec(
-                    select(Race).where(
-                        Race.race_name == race_name, Race.race_type == race_type
-                    )
-                ).first()
-                if existing_race:
-                    print(f"Race '{race_name}'_'{race_type}' already exists.")
-                    return
                 new_race = Race(
                     race_id=race_id,
                     race_name=race_name,

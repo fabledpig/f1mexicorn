@@ -7,4 +7,6 @@ uvicorn==0.32.0
 google-auth==2.35.0
 mysql-connector-python==9.0.0
 python-dotenv
-sqlalchemy 
+sqlalchemy
+sqlmodel
+celery[redis]

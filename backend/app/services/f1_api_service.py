@@ -14,45 +14,36 @@ For now get the following info for basic functionality
 class F1API:
     BASE_URL = "https://api.openf1.org/v1"
 
-    def __init__(self, year=None, country=None):
-        self._year = year
-
-    @property
-    def year(self):
-        return self._year
-
-    @year.setter
-    def country(self, value):
-        self._year = value
-
-    @property
-    def country(self):
-        return self._country
-
-    @country.setter
-    def country(self, value):
-        self._country = value
-
-    def _get(self, endpoint, params=None):
-        url = f"{self.BASE_URL}/{endpoint}"
+    @staticmethod
+    def _get(endpoint, params=None):
+        url = f"{F1API.BASE_URL}/{endpoint}"
         response = requests.get(url, params=params)
         return response.json()
 
-    def get_meetings(self):
+    # Get all meetings in a given year
+    @staticmethod
+    def get_meetings(year):
         params = {}
-        if self._year:
-            params["year"] = self._year
+        params["year"] = year
+        return F1API._get("sessions", params)
 
-        return self._get("meetings", params)
+    # Get all sessions in a given year
+    @staticmethod
+    def get_sessions(year):
+        params = {}
+        params["year"] = year
+        return F1API._get("sessions", params)
 
-    def get_drivers(self, meeting_key):
+    # Get drivers from a given meeting (weekend)
+    @staticmethod
+    def get_meeting_drivers(meeting_key):
         params = {}
         params["meeting_key"] = meeting_key
-        return self._get("drivers", params)
+        return F1API._get("drivers", params)
 
-    # only get
-    def get_sessions(self):
+    # Get rivers for a given session (qualy, race, sprint)
+    @staticmethod
+    def get_session_drivers(session_key):
         params = {}
-        if self._year:
-            params["year"] = self._year
-        return self._get("sessions", params)
+        params["session_key"] = session_key
+        return F1API._get("drivers", params)

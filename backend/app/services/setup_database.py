@@ -1,12 +1,14 @@
 from app.services.f1_api_service import F1API
 from app.services.db_service import MYSQLDB
 
+VALID_SESSIONS = ["Qualifying", "Race"]
 
-def populate_races(f1api: F1API, mysqldb: MYSQLDB):
-    sessions = f1api.get_sessions()
-    valid_sessions = ["Qualifying", "Race"]
+
+def populate_races(mysqldb: MYSQLDB):
+    sessions = F1API.get_sessions("2024")
+
     for session in sessions:
-        if session["session_type"] in valid_sessions:
+        if session["session_type"] in VALID_SESSIONS:
             mysqldb.add_race(
                 session["country_name"],
                 session["session_name"],
@@ -15,20 +17,23 @@ def populate_races(f1api: F1API, mysqldb: MYSQLDB):
             )
 
 
-def populate_drivers(f1api: F1API, mysqldb: MYSQLDB):
-    meetings = f1api.get_meetings()
-    for meeting in meetings:
-        drivers = f1api.get_drivers(meeting["meeting_key"])
-        for driver in drivers:
-            mysqldb.add_driver(
-                driver["full_name"], driver["country_code"], driver["team_name"]
-            )
+def populate_session_drivers(mysqldb: MYSQLDB):
+    sessions = F1API.get_sessions("2024")
+    for session in sessions:
+        if session["session_type"] in VALID_SESSIONS:
+            drivers = F1API.get_session_drivers(session["session_key"])
+            for driver in drivers:
+                mysqldb.add_session_driver(
+                    session["session_key"],
+                    driver["full_name"],
+                    driver["country_code"],
+                    driver["team_name"],
+                )
 
 
 if __name__ == "__main__":
-    f1api = F1API(2024)
     mysqldb = MYSQLDB()
 
     mysqldb.create_tables()
-    populate_races(f1api, mysqldb)
-    populate_drivers(f1api, mysqldb)
+    populate_races(mysqldb)
+    populate_session_drivers(mysqldb)
