@@ -3,9 +3,10 @@ from google.oauth2 import id_token
 from google.auth.transport import requests
 import requests as req
 
-from app.utils.utils import get_google_auth_client_credentials
 from app.services import db_service
 from app.models.user import UserInfo, AuthorizationToken
+
+from app.core.config import settings
 
 router = APIRouter()
 
@@ -14,7 +15,8 @@ GOOGLE_AUTH_URL = "https://oauth2.googleapis.com/token"
 
 @router.post("/auth/google", response_model=UserInfo)
 async def google_auth(request: AuthorizationToken):
-    client_id, client_secret = get_google_auth_client_credentials()
+    client_id = settings.client_id
+    client_secret = settings.client_secret
 
     response = req.post(
         GOOGLE_AUTH_URL,

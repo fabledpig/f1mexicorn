@@ -1,15 +1,15 @@
 from sqlalchemy import create_engine, text
 from sqlmodel import SQLModel, Session, select
 from sqlalchemy.exc import SQLAlchemyError
-from app.utils.utils import get_database_credentials
 from app.models.sql_models import User, Race, RaceDriver, RaceResult, Guess
+from app.core.config import settings
 
 
 class MYSQLDB:
     def __init__(self, db_name="f1_application", host="localhost") -> None:
         self._db_name = db_name
         self._engine = create_engine(
-            f"mysql+mysqlconnector://{get_database_credentials()[0]}:{get_database_credentials()[1]}@{host}/"
+            f"mysql+mysqlconnector://{settings.mysql_user}:{settings.mysql_password}@{host}/"
         )
 
         # Create the Database initially, might not be the best, but for now
@@ -24,7 +24,7 @@ class MYSQLDB:
 
         # Connect to the created database
         self._engine = create_engine(
-            f"mysql+mysqlconnector://{get_database_credentials()[0]}:{get_database_credentials()[1]}@{host}/{self._db_name}"
+            f"mysql+mysqlconnector://{settings.mysql_user}:{settings.mysql_password}@{host}/{self._db_name}"
         )
 
     def create_tables(self):
@@ -60,12 +60,15 @@ class MYSQLDB:
                 session.rollback()
                 print("Error adding user:", e)
 
-    def add_session_driver(self, session_key, driver_name, nationality, team):
+    def add_session_driver(
+        self, session_key, driver_name, driver_number, nationality, team
+    ):
         with self.get_session() as session:
             try:
                 new_driver = RaceDriver(
                     race_id=session_key,
                     driver_name=driver_name,
+                    driver_number=driver_number,
                     nationality=nationality,
                     team=team,
                 )
