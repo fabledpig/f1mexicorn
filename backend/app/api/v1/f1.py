@@ -3,11 +3,11 @@ from typing import List, Optional
 from typing_extensions import Annotated
 
 from fastapi import Depends, Query, APIRouter, HTTPException, status
-from sqlmodel import Session, select
+from sqlmodel import Session, and_, select
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.services.f1_api_service import F1API
-from app.models.sql_models import RaceDriver, Guess, Race
+from app.models.sql_models import RaceDriver, Guess, Race, RaceResult
 from app.models.results import DriverPosition, Standings
 from app.core.dependencies import get_db_session
 
@@ -101,13 +101,48 @@ async def user_session_guess(guess: Guess, session: SessionDep):
 # TODO how to do this, always fetch from F1 openapi,
 # or cache some and only request at regular intervals, probably need to use redis here
 @router.post("/session_standing", response_model=Standings)
-async def session_standing(session_key: int):
-    driver_numbers_in_top = []
-    for i in range(1, 4):
-        driver_at_position = F1API.get_driver_at_position_in_session(session_key, i)
-        driver_numbers_in_top.append(
-            DriverPosition(
-                position=i, driver_number=driver_at_position["driver_number"]
+async def session_standing(
+    session: SessionDep,
+    session_key: int = Query(None, description="Session key of the requested results"),
+):
+    query_result = select(RaceResult).where(RaceResult.race_id == session_key)
+    result = session.exec(query_result).first()
+    print(result)
+    query_drivers = []
+    query_drivers.append(
+        select(RaceDriver).where(
+            and_(
+                RaceDriver.race_id == session_key,
+                RaceDriver.driver_number == result.first_place_driver_number,
             )
         )
+    )
+    query_drivers.append(
+        select(RaceDriver).where(
+            and_(
+                RaceDriver.race_id == session_key,
+                RaceDriver.driver_number == result.second_place_driver_number,
+            )
+        )
+    )
+    query_drivers.append(
+        select(RaceDriver).where(
+            and_(
+                RaceDriver.race_id == session_key,
+                RaceDriver.driver_number == result.third_place_driver_number,
+            )
+        )
+    )
+    driver_numbers_in_top = []
+    for pos, query in enumerate(query_drivers):
+        driver_at_position = session.exec(query).first()
+        print(driver_at_position)
+        driver_numbers_in_top.append(
+            DriverPosition(
+                position=pos,
+                driver_number=driver_at_position.driver_number,
+                driver_name=driver_at_position.driver_name,
+            )
+        )
+
     return Standings(session_key=session_key, standings=driver_numbers_in_top)

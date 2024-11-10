@@ -1,6 +1,7 @@
 # F1 OPEN API tempering
 
 import requests
+import time
 
 """
 Utility class to interact with F1 open API
@@ -18,6 +19,13 @@ class F1API:
     def _get(endpoint, params=None):
         url = f"{F1API.BASE_URL}/{endpoint}"
         response = requests.get(url, params=params)
+        # Check if rate limit was exceeded (HTTP status code 429)
+        if response.status_code == 429:
+            retry_after = int(response.headers.get("Retry-After", 60))
+            print(f"Rate limit exceeded. Retrying in {retry_after} seconds...")
+            time.sleep(retry_after)
+            return F1API._get(endpoint, params)
+
         return response.json()
 
     # Get all meetings in a given year

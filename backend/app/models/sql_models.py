@@ -1,5 +1,5 @@
-from sqlmodel import SQLModel, Field
-from typing import Optional
+from sqlmodel import SQLModel, Field, Relationship
+from typing import Optional, List
 
 
 class User(SQLModel, table=True):
@@ -15,6 +15,15 @@ class Race(SQLModel, table=True):
     race_date: str
 
 
+class RaceDriver(SQLModel, table=True):
+    race_driver_id: Optional[int] = Field(default=None, primary_key=True)
+    race_id: int = Field(foreign_key="race.race_id")
+    driver_number: int
+    driver_name: str = Field(max_length=100)
+    nationality: Optional[str] = Field(max_length=50, nullable=True)
+    team: Optional[str] = Field(max_length=50, nullable=True)
+
+
 class Guess(SQLModel, table=True):
     guess_id: Optional[int] = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="user.user_id")
@@ -24,10 +33,8 @@ class Guess(SQLModel, table=True):
     position_3_driver_id: int = Field(foreign_key="racedriver.race_driver_id")
 
 
-class RaceDriver(SQLModel, table=True):
-    race_driver_id: Optional[int] = Field(default=None, primary_key=True)
-    race_id: int = Field(foreign_key="race.race_id")
-    driver_number: int
-    driver_name: str = Field(max_length=100)
-    nationality: Optional[str] = Field(max_length=50)
-    team: Optional[str] = Field(max_length=50)
+class RaceResult(SQLModel, table=True):
+    race_id: int = Field(foreign_key="race.race_id", primary_key=True)
+    first_place_driver_number: int
+    second_place_driver_number: int
+    third_place_driver_number: int

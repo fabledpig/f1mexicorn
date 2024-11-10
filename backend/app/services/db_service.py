@@ -1,7 +1,7 @@
-from sqlalchemy import create_engine, text
+from sqlalchemy import and_, create_engine, text
 from sqlmodel import SQLModel, Session, select
 from sqlalchemy.exc import SQLAlchemyError
-from app.models.sql_models import User, Race, RaceDriver, Guess
+from app.models.sql_models import User, Race, RaceDriver, Guess, RaceResult
 from app.core.config import settings
 
 
@@ -73,6 +73,15 @@ class MYSQLDB:
     ):
         with self.get_session() as session:
             try:
+                query = and_(
+                    RaceDriver.race_id == session_key,
+                    RaceDriver.driver_number == driver_number,
+                )
+
+                existing_driver = session.exec(select(RaceDriver).where(query)).first()
+                if existing_driver:
+                    print("Driver already added")
+                    return
                 new_driver = RaceDriver(
                     race_id=session_key,
                     driver_name=driver_name,
@@ -126,6 +135,34 @@ class MYSQLDB:
             except SQLAlchemyError as e:
                 session.rollback()
                 print("Error adding guess:", e)
+
+    def add_race_result(self, race_id, first, second, third):
+        with self.get_session() as session:
+            try:
+                query = RaceResult.race_id == race_id
+                existing_result = session.exec(select(RaceResult).where(query)).first()
+
+                if existing_result:
+                    # Update existing race result
+                    existing_result.first_place_driver_number = first
+                    existing_result.second_place_driver_number = second
+                    existing_result.third_place_driver_number = third
+                    session.add(existing_result)
+                    print("Updated existing race result")
+                else:
+                    # Add new race result
+                    new_result = RaceResult(
+                        race_id=race_id,
+                        first_place_driver_number=first,
+                        second_place_driver_number=second,
+                        third_place_driver_number=third,
+                    )
+                    session.add(new_result)
+                    print(f"Added new race result for {race_id}")
+                session.commit()
+            except Exception as e:
+                session.rollback()
+                print(f"An error occurred: {e}")
 
 
 _database_instance = None
