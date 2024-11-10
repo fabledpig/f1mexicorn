@@ -15,13 +15,6 @@ class Race(SQLModel, table=True):
     race_date: str
 
 
-class RaceResult(SQLModel, table=True):
-    result_id: Optional[int] = Field(default=None, primary_key=True)
-    race_id: int = Field(foreign_key="race.race_id")
-    driver_id: int = Field(foreign_key="racedriver.race_driver_id")
-    position: int
-
-
 class Guess(SQLModel, table=True):
     guess_id: Optional[int] = Field(default=None, primary_key=True)
     user_id: int = Field(foreign_key="user.user_id")
@@ -34,6 +27,7 @@ class Guess(SQLModel, table=True):
 class RaceDriver(SQLModel, table=True):
     race_driver_id: Optional[int] = Field(default=None, primary_key=True)
     race_id: int = Field(foreign_key="race.race_id")
+    driver_number: int
     driver_name: str = Field(max_length=100)
     nationality: Optional[str] = Field(max_length=50)
     team: Optional[str] = Field(max_length=50)

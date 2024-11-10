@@ -1,14 +1,20 @@
-from fastapi import APIRouter, HTTPException
-from google.oauth2 import id_token
-from google.auth.transport import requests
 import requests as req
 
-from app.services import db_service
-from app.models.user import UserInfo, AuthorizationToken
+from fastapi import Depends, APIRouter, HTTPException
+from sqlmodel import Session
+from typing_extensions import Annotated
+from google.oauth2 import id_token
+from google.auth.transport import requests
 
+from app.services import db_service
+from app.models.user import AuthorizationToken, UserInfo
+from app.models.sql_models import User
+from app.core.dependencies import get_db_session
 from app.core.config import settings
 
 router = APIRouter()
+
+SessionDep = Annotated[Session, Depends(get_db_session)]
 
 GOOGLE_AUTH_URL = "https://oauth2.googleapis.com/token"
 
@@ -43,6 +49,7 @@ async def google_auth(request: AuthorizationToken):
             name=id_user_info.get("name"),
         )
 
+        # TODO only add the new users to database
         database = db_service.MYSQLDB()
         database.add_user(user_info.email, user_info.name)
 

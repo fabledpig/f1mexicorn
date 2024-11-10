@@ -1,19 +1,24 @@
 from sqlalchemy import create_engine, text
 from sqlmodel import SQLModel, Session, select
 from sqlalchemy.exc import SQLAlchemyError
-from app.models.sql_models import User, Race, RaceDriver, RaceResult, Guess
+from app.models.sql_models import User, Race, RaceDriver, Guess
 from app.core.config import settings
 
 
 class MYSQLDB:
     def __init__(self, db_name="f1_application", host="localhost") -> None:
         self._db_name = db_name
-        self._engine = create_engine(
-            f"mysql+mysqlconnector://{settings.mysql_user}:{settings.mysql_password}@{host}/"
+        self._host = host
+        self._engine = None  # Engine will be created on startup
+
+    def connect(self):
+        """Initializes the database and creates tables if needed."""
+        # Create initial connection to ensure database exists
+        engine = create_engine(
+            f"mysql+mysqlconnector://{settings.mysql_user}:{settings.mysql_password}@{self._host}/"
         )
 
-        # Create the Database initially, might not be the best, but for now
-        with self._engine.connect() as connection:
+        with engine.connect() as connection:
             try:
                 connection.execute(
                     text(f"CREATE DATABASE IF NOT EXISTS {self._db_name}")
@@ -22,22 +27,25 @@ class MYSQLDB:
             except SQLAlchemyError as e:
                 print("Error creating database:", e)
 
-        # Connect to the created database
+        # Connect to the specific database
         self._engine = create_engine(
-            f"mysql+mysqlconnector://{settings.mysql_user}:{settings.mysql_password}@{host}/{self._db_name}"
+            f"mysql+mysqlconnector://{settings.mysql_user}:{settings.mysql_password}@{self._host}/{self._db_name}"
         )
 
-    def create_tables(self):
-        """Create tables in the database if they do not exist."""
-        try:
-            SQLModel.metadata.create_all(self._engine)
-            print("Tables created successfully.")
-        except SQLAlchemyError as e:
-            print("Error creating tables:", e)
+        # Optionally create tables if they don't exist
+        SQLModel.metadata.create_all(self._engine)
 
     def get_session(self):
-        """Provides a new session to interact with the database."""
+        """Provides a session for interacting with the database."""
+        if not self._engine:
+            raise Exception("Database engine not initialized. Call connect() first.")
         return Session(self._engine)
+
+    def close(self):
+        """Dispose of the engine to close any active connections."""
+        if self._engine:
+            self._engine.dispose()
+            self._engine = None
 
     def get_all_races(self):
         """Fetch all records from the races table."""
@@ -95,19 +103,6 @@ class MYSQLDB:
                 session.rollback()
                 print("Error adding race:", e)
 
-    def add_race_result(self, race_id, driver_id, position):
-        with self.get_session() as session:
-            try:
-                new_result = RaceResult(
-                    race_id=race_id, driver_id=driver_id, position=position
-                )
-                session.add(new_result)
-                session.commit()
-                print("Race result added successfully")
-            except SQLAlchemyError as e:
-                session.rollback()
-                print("Error adding race result:", e)
-
     def add_guess(
         self,
         user_id,
@@ -131,3 +126,14 @@ class MYSQLDB:
             except SQLAlchemyError as e:
                 session.rollback()
                 print("Error adding guess:", e)
+
+
+_database_instance = None
+
+
+def get_database():
+    """Gets the singleton instance of MYSQLDB, initializing it if needed."""
+    global _database_instance
+    if _database_instance is None:
+        _database_instance = MYSQLDB()
+    return _database_instance

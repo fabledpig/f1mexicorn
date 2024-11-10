@@ -47,3 +47,12 @@ class F1API:
         params = {}
         params["session_key"] = session_key
         return F1API._get("drivers", params)
+
+    @staticmethod
+    def get_driver_at_position_in_session(session_key, position_number):
+        params = {}
+        params["session_key"] = session_key
+        params["position"] = position_number
+        # unfortunately F1 open api return the list of drivers associated with that
+        # position throuhgout the race, so we only need the last elemen
+        return F1API._get("position", params)[:1][0]

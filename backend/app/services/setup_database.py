@@ -26,6 +26,7 @@ def populate_session_drivers(mysqldb: MYSQLDB):
                 mysqldb.add_session_driver(
                     session["session_key"],
                     driver["full_name"],
+                    driver["driver_number"],
                     driver["country_code"],
                     driver["team_name"],
                 )
@@ -33,7 +34,7 @@ def populate_session_drivers(mysqldb: MYSQLDB):
 
 if __name__ == "__main__":
     mysqldb = MYSQLDB()
-
-    mysqldb.create_tables()
+    mysqldb.connect()
     populate_races(mysqldb)
     populate_session_drivers(mysqldb)
+    mysqldb.close()

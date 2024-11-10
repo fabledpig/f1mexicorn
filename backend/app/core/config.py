@@ -6,7 +6,6 @@ class Settings(BaseSettings):
     version: str = "0.1.0"
     environment: str = "development"
 
-    # New environment variables
     client_id: str
     client_secret: str
     mysql_user: str
@@ -19,5 +18,4 @@ class Settings(BaseSettings):
         env_file = ".env"
 
 
-# Instantiate settings
 settings = Settings()
