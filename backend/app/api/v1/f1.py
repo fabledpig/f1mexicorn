@@ -1,5 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
+from fastapi.security import OAuth2PasswordBearer
+import jwt
 from typing_extensions import Annotated
 
 from fastapi import Depends, Query, APIRouter, HTTPException, status
@@ -9,11 +11,21 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.services.f1_api_service import F1API
 from app.models.sql_models import RaceDriver, Guess, Race, RaceResult
 from app.models.results import DriverPosition, Standings
-from app.core.dependencies import get_db_session
+from app.core.dependencies import get_db_session, oauth2_scheme
+from app.core.config import settings
 
 router = APIRouter()
 
 SessionDep = Annotated[Session, Depends(get_db_session)]
+
+
+def verify_token(token: str = Depends(oauth2_scheme)):
+    try:
+        # Decode the JWT token
+        payload = jwt.decode(token, settings.secret_key, algorithms=["HS256"])
+        return payload  # You can return the payload to use it in your route functions
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="Invalid or expired token")
 
 
 @router.get("/sessions", response_model=List[Race])
@@ -22,6 +34,7 @@ async def get_races(
     limit: Optional[int] = Query(
         None, description="Number of latest races to return, or all races if omitted"
     ),
+    _=Depends(verify_token),
 ):
     try:
         sql_query = select(Race).order_by(Race.race_date.desc())
@@ -52,7 +65,11 @@ async def get_races(
 
 # Provide
 @router.post("/session_drivers", response_model=List[RaceDriver])
-async def session_drivers(session_id: int, session: SessionDep):
+async def session_drivers(
+    session_id: int,
+    session: SessionDep,
+    _=Depends(verify_token),
+):
     try:
         sql_filter = select(RaceDriver).where(RaceDriver.race_id == session_id)
         session_drivers = session.exec(sql_filter).all()
@@ -78,7 +95,11 @@ async def session_drivers(session_id: int, session: SessionDep):
 
 
 @router.post("/guess")
-async def user_session_guess(guess: Guess, session: SessionDep):
+async def user_session_guess(
+    guess: Guess,
+    session: SessionDep,
+    _=Depends(verify_token),
+):
     try:
         session.add(guess)
         session.commit()
@@ -104,6 +125,7 @@ async def user_session_guess(guess: Guess, session: SessionDep):
 async def session_standing(
     session: SessionDep,
     session_key: int = Query(None, description="Session key of the requested results"),
+    token_data: dict = Depends(verify_token),
 ):
     query_result = select(RaceResult).where(RaceResult.race_id == session_key)
     result = session.exec(query_result).first()
