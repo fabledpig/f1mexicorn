@@ -42,6 +42,12 @@ class F1API:
         params["year"] = year
         return F1API._get("sessions", params)
 
+    @staticmethod
+    def get_session_by_id(session_key):
+        params = {}
+        params["session_key"] = session_key
+        return F1API._get("sessions", params)
+
     # Get drivers from a given meeting (weekend)
     @staticmethod
     def get_meeting_drivers(meeting_key):
@@ -49,7 +55,7 @@ class F1API:
         params["meeting_key"] = meeting_key
         return F1API._get("drivers", params)
 
-    # Get rivers for a given session (qualy, race, sprint)
+    # Get drivers for a given session (qualy, race, sprint)
     @staticmethod
     def get_session_drivers(session_key):
         params = {}

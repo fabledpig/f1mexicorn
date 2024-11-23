@@ -10,9 +10,12 @@ class Settings(BaseSettings):
     client_secret: str
     mysql_user: str
     mysql_password: str
+    host_name: str
+    database_name: str
     celery_broker_url: str
     celery_result_backend: str
     secret_key: str
+    discord_hook: str
 
     class Config:
         # Need to be at the working directory from where the fastapi application is started

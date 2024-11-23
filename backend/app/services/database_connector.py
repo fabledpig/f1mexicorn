@@ -6,9 +6,9 @@ from app.core.config import settings
 
 
 class MYSQLDB:
-    def __init__(self, db_name="f1_application", host="localhost") -> None:
-        self._db_name = db_name
-        self._host = host
+    def __init__(self) -> None:
+        self._db_name = settings.database_name
+        self._host = settings.host_name
         self._engine = None  # Engine will be created on startup
 
     def connect(self):

@@ -1,6 +1,6 @@
 from app.core.app_base import Application
 from app.core.config import settings
-from app.services.db_service import get_database
+from app.services.database_connector import get_database
 
 app = Application(title=settings.app_name, version=settings.version)
 

@@ -6,7 +6,7 @@ from sqlmodel import Session
 from typing_extensions import Annotated
 from google.oauth2 import id_token
 from google.auth.transport import requests
-from app.services import db_service
+from app.services import database_connector
 from app.models.user import AuthorizationToken, UserInfo
 from app.models.sql_models import User
 from app.core.dependencies import get_db_session
