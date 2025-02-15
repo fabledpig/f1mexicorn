@@ -5,12 +5,19 @@ import { useGoogleAuthUsersAuthGooglePost } from '@/services/default/default';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { memo, useEffect } from 'react';
 
+let didRun = false;
+
 export default memo(function GoogleSso() {
   const router = useRouter();
   const queryParams = useSearchParams();
   const { mutateAsync: authWithGoogleSso } = useGoogleAuthUsersAuthGooglePost();
 
   useEffect(() => {
+    if (didRun) {
+      return;
+    }
+    didRun = true;
+
     const state = queryParams.get('state');
     const loginState = JSON.parse(
       window.localStorage.getItem(LOGIN_STATE_KEY) ?? '{}',
@@ -27,7 +34,7 @@ export default memo(function GoogleSso() {
     }).catch(() => {
       router.push('/login');
     });
-  }, [router, queryParams, authWithGoogleSso]);
+  }, []);
 
   return <>{queryParams.get('code')}</>;
 });
