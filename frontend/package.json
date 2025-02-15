@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "prepare": "cd .. && husky frontend/.husky",
-    "generate-api-definitions": "node scripts/download-openapi-spec.mjs api.json"
+    "generate-api-definitions": "node scripts/download-openapi-spec.mjs api.json && npx orval"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,css,md}": "npx prettier --write"

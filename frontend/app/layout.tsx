@@ -1,6 +1,9 @@
-import type { Metadata } from 'next';
+'use client';
+
 import localFont from 'next/font/local';
 import './globals.scss';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import axios from 'axios';
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -13,9 +16,8 @@ const geistMono = localFont({
   weight: '100 900',
 });
 
-export const metadata: Metadata = {
-  title: 'F1 Mexicorn',
-};
+const queryClient = new QueryClient();
+axios.defaults.baseURL = 'http://localhost:8000';
 
 export default function RootLayout({
   children,
@@ -24,7 +26,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
+      <QueryClientProvider client={queryClient}>
+        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+          {children}
+        </body>
+      </QueryClientProvider>
     </html>
   );
 }
