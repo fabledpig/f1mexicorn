@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import List, Optional
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPAuthorizationCredentials, OAuth2PasswordBearer
 import jwt
 from typing_extensions import Annotated
 
@@ -11,21 +11,12 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.services.f1_api_service import F1API
 from app.models.sql_models import RaceDriver, Guess, Race, RaceResult
 from app.models.results import DriverPosition, Standings
-from app.core.dependencies import get_db_session, oauth2_scheme
+from app.core.dependencies import get_db_session, verify_token
 from app.core.config import settings
 
 router = APIRouter()
 
 SessionDep = Annotated[Session, Depends(get_db_session)]
-
-
-def verify_token(token: str = Depends(oauth2_scheme)):
-    try:
-        # Decode the JWT token
-        payload = jwt.decode(token, settings.secret_key, algorithms=["HS256"])
-        return payload  # You can return the payload to use it in your route functions
-    except jwt.PyJWTError:
-        raise HTTPException(status_code=401, detail="Invalid or expired token")
 
 
 @router.get("/sessions", response_model=List[Race])

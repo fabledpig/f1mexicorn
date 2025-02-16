@@ -1,51 +1,22 @@
-import jwt
-import datetime
 import requests as req
-from fastapi import Depends, APIRouter, HTTPException, status
-from sqlmodel import Session
-from typing_extensions import Annotated
+from fastapi import Depends, APIRouter, HTTPException
 from google.oauth2 import id_token
 from google.auth.transport import requests
-from app.services import database_connector
-from app.models.user import AuthorizationToken, UserInfo
-from app.models.sql_models import User
-from app.core.dependencies import get_db_session
+from app.models.user import GoogleAuthorizationToken, AccessToken, UserInfo
+from app.core.dependencies import create_access_token, verify_token
 from app.core.config import settings
 
 router = APIRouter()
 
-SessionDep = Annotated[Session, Depends(get_db_session)]
 
-GOOGLE_AUTH_URL = "https://oauth2.googleapis.com/token"
-
-SECRET_KEY = settings.secret_key
-ALGORITHM = "HS256"
-
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
-
-
-def create_access_token(data: dict, expires_delta: datetime.timedelta = None):
-    """Generate JWT token"""
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.datetime.utcnow() + datetime.timedelta(
-            minutes=ACCESS_TOKEN_EXPIRE_MINUTES
-        )
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
-
-
-@router.post("/auth/google", response_model=UserInfo)
-async def google_auth(request: AuthorizationToken):
+@router.post("/auth/google", response_model=AccessToken)
+async def google_auth(request: GoogleAuthorizationToken):
     client_id = settings.client_id
     client_secret = settings.client_secret
 
     # Get the token from Google
     response = req.post(
-        GOOGLE_AUTH_URL,
+        "https://oauth2.googleapis.com/token",
         data={
             "code": request.auth_token,
             "client_id": client_id,
@@ -54,8 +25,7 @@ async def google_auth(request: AuthorizationToken):
             "grant_type": "authorization_code",
         },
     )
-    auth_response = response.json()
-    token_id = auth_response.get("id_token")
+    token_id = response.json().get("id_token")
 
     if not token_id:
         raise HTTPException(status_code=400, detail="Token ID not found in response")
@@ -68,15 +38,9 @@ async def google_auth(request: AuthorizationToken):
 
         # Create a JWT token and return it
         access_token = create_access_token(
-            data={"sub": id_user_info.get("sub"), "email": id_user_info.get("email")}
+            data={"name": id_user_info.get("name"), "email": id_user_info.get("email")}
         )
-        user_info = UserInfo(
-            user_id=id_user_info.get("sub"),
-            email=id_user_info.get("email"),
-            name=id_user_info.get("name"),
-            access_token=access_token,
-        )
-        print(user_info)
+        print(access_token)
     except ValueError:
         raise HTTPException(
             status_code=401, detail="Invalid token or verification failed"
@@ -84,4 +48,11 @@ async def google_auth(request: AuthorizationToken):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-    return user_info
+    return access_token
+
+
+@router.get("/user")
+async def get_user_info(
+    decoded_token=Depends(verify_token),
+):
+    return decoded_token

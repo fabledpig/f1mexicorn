@@ -1,12 +1,14 @@
 from pydantic import BaseModel
 
 
-class AuthorizationToken(BaseModel):
+class GoogleAuthorizationToken(BaseModel):
     auth_token: str
 
 
+class AccessToken(BaseModel):
+    access_token: str
+
+
 class UserInfo(BaseModel):
-    user_id: str
     email: str
     name: str
-    access_token: str
