@@ -1,5 +1,6 @@
 'use client';
 
+import { useAuth } from '@/components/auth-provider/AuthProvider';
 import { LOGIN_STATE_KEY, LoginState } from '@/components/login/Login';
 import { useGoogleAuthUsersAuthGooglePost } from '@/services/default/default';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -10,7 +11,8 @@ let didRun = false;
 export default memo(function GoogleSso() {
   const router = useRouter();
   const queryParams = useSearchParams();
-  const { mutateAsync: authWithGoogleSso } = useGoogleAuthUsersAuthGooglePost();
+  const { mutate: authWithGoogleSso } = useGoogleAuthUsersAuthGooglePost();
+  const { login } = useAuth();
 
   useEffect(() => {
     if (didRun) {
@@ -27,14 +29,24 @@ export default memo(function GoogleSso() {
       console.error('Login state mismatch');
       router.push('/login');
     }
-    authWithGoogleSso({
-      data: {
-        auth_token: queryParams.get('code')!,
+
+    authWithGoogleSso(
+      {
+        data: {
+          auth_token: queryParams.get('code')!,
+        },
       },
-    }).catch(() => {
-      router.push('/login');
-    });
+      {
+        onSuccess: (response) => {
+          login(response.data.name, response.data.email, response.data.access_token);
+          router.push('/');
+        },
+        onError: () => {
+          router.push('/login');
+        },
+      },
+    );
   }, []);
 
-  return <>{queryParams.get('code')}</>;
+  return <></>;
 });

@@ -4,6 +4,7 @@ import localFont from 'next/font/local';
 import './globals.scss';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import axios from 'axios';
+import AuthProvider from '@/components/auth-provider/AuthProvider';
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -27,9 +28,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <QueryClientProvider client={queryClient}>
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-          {children}
-        </body>
+        <AuthProvider>
+          <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+            {children}
+          </body>
+        </AuthProvider>
       </QueryClientProvider>
     </html>
   );
