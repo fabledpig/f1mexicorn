@@ -1,4 +1,4 @@
-from sqlmodel import SQLModel, Field, Relationship
+from sqlmodel import Column, Integer, SQLModel, Field, Relationship, ForeignKey
 from typing import Optional, List
 
 
@@ -27,13 +27,15 @@ class Race(SQLModel, table=True):
 
 class RaceDriver(SQLModel, table=True):
     race_driver_id: Optional[int] = Field(default=None, primary_key=True)
-    race_id: int = Field(foreign_key="race.race_id")
+    race_id: int = Field(
+        sa_column=Column(Integer, ForeignKey("race.race_id", ondelete="CASCADE"))
+    )
     driver_number: int
     driver_name: str = Field(max_length=100)
     nationality: str = Field(max_length=50, nullable=True)
     team: str = Field(max_length=50, nullable=True)
 
-    race: Race = Relationship(back_populates="race_drivers")
+    race: "Race" = Relationship(back_populates="race_drivers")
 
 
 class Guess(SQLModel, table=True):

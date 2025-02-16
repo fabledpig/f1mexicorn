@@ -84,8 +84,8 @@ def add_missing_sessions_in_year(mysqldb: MYSQLDB, year: str):
 if __name__ == "__main__":
     mysqldb = MYSQLDB()
     mysqldb.connect()
-    # initialize_sessions(mysqldb, "2024")
-    # initialize_session_drivers(mysqldb, "2024")
+    initialize_sessions(mysqldb, "2024")
+    initialize_session_drivers(mysqldb, "2024")
     initialize_session_results(mysqldb, "2024")
     add_missing_sessions_in_year(mysqldb, "2024")
     mysqldb.close()
