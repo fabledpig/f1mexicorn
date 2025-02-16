@@ -9,10 +9,13 @@ export default function Home() {
   const { authState } = useAuth();
 
   useEffect(() => {
-    if (authState == null) {
+    if (!authState) {
       router.push('/login');
+      return;
     }
+
+    router.push('/main');
   }, [router, authState]);
 
-  return <>{authState && `Hello ${authState.name}`}</>;
+  return <></>;
 }

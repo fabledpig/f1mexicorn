@@ -1,0 +1,17 @@
+@use '../../css/colors';
+
+.frame {
+  min-width: 100%;
+  min-height: 64px;
+  background-color: colors.$primary;
+  position: sticky;
+  top: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+
+  span {
+    padding: 0 1em;
+  }
+}
