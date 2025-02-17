@@ -1,9 +1,12 @@
 import jwt
 import datetime
 from fastapi import Depends, HTTPException
-from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from fastapi.security import (
+    HTTPAuthorizationCredentials,
+    HTTPBearer,
+)
 from app.core.config import settings
-from app.services.database_connector import get_database
+from app.services.database.connector import MYSQLDB
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
@@ -36,10 +39,9 @@ def create_access_token(data: dict, expires_delta: datetime.timedelta = None):
     return encoded_jwt
 
 
-def get_db_session():
-    """Dependency to get a session with the database."""
-    session = get_database().get_session()
-    try:
-        yield session
-    finally:
-        session.close()
+mysqldb = MYSQLDB()
+
+
+def get_db():
+    """Dependency to get the database singleton instance."""
+    return mysqldb

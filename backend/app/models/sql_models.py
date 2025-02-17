@@ -51,9 +51,12 @@ class Guess(SQLModel, table=True):
 
 
 class RaceResult(SQLModel, table=True):
-    race_id: int = Field(foreign_key="race.race_id", primary_key=True)
+    race_result_id: Optional[int] = Field(default=None, primary_key=True)
+    race_id: int = Field(
+        sa_column=Column(Integer, ForeignKey("race.race_id", ondelete="CASCADE"))
+    )
     first_place_driver_number: int
     second_place_driver_number: int
     third_place_driver_number: int
 
-    race: Race = Relationship(back_populates="race_result")
+    race: "Race" = Relationship(back_populates="race_result")
