@@ -44,7 +44,6 @@ class MYSQLDB:
             raise Exception("Database engine not initialized. Call connect() first.")
         return Session(self._engine)
 
-    @classmethod
     def close(self):
         """Dispose of the engine to close any active connections."""
         if self._engine:

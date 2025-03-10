@@ -1,10 +1,12 @@
+from typing import Generator
 import jwt
 import datetime
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, Request
 from fastapi.security import (
     HTTPAuthorizationCredentials,
     HTTPBearer,
 )
+from sqlmodel import Session
 from app.core.config import settings
 from app.services.database.connector import MYSQLDB
 
@@ -35,13 +37,14 @@ def create_access_token(data: dict, expires_delta: datetime.timedelta = None):
             minutes=ACCESS_TOKEN_EXPIRE_MINUTES
         )
     to_encode.update({"exp": expire})
+    # Directly pass the dictionary to jwt.encode without encoding it to bytes
     encoded_jwt = jwt.encode(to_encode, settings.secret_key, algorithm="HS256")
     return encoded_jwt
 
 
-mysqldb = MYSQLDB()
-
-
-def get_db():
-    """Dependency to get the database singleton instance."""
-    return mysqldb
+def get_db_session(request: Request) -> Generator[Session, None, None]:
+    session = request.app.state.db.get_session()
+    try:
+        yield session
+    finally:
+        session.close()

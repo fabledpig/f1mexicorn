@@ -4,12 +4,14 @@ from app.services.database.connector import MYSQLDB
 
 app = Application(title=settings.app_name, version=settings.version)
 
+db_manager = MYSQLDB()
+
 
 @app.on_event("startup")
 def on_startup():
-    _ = MYSQLDB()
+    app.state.db = db_manager
 
 
 @app.on_event("shutdown")
 def on_shutdown():
-    MYSQLDB.close()
+    app.state.db.close()

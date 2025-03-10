@@ -1,13 +1,13 @@
 from typing import List, Optional
+from sqlmodel import Session
 from typing_extensions import Annotated
 
 from fastapi import Depends, Query, APIRouter, HTTPException, status
-from sqlmodel import Session
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.models.sql_models import RaceDriver, Guess, Race
 from app.models.results import Standings
-from app.core.dependencies import get_db, verify_token
+from app.core.dependencies import get_db_session, verify_token
 from app.core.config import settings
 from app.services.database.race_service import RaceService
 from app.services.database.user_service import UserService
@@ -15,12 +15,12 @@ from app.services.database.user_service import UserService
 
 router = APIRouter()
 
-DatabaseDeb = Annotated[Session, Depends(get_db)]
+SessionDep = Annotated[Session, Depends(get_db_session)]
 
 
 @router.get("/sessions", response_model=List[Race])
 async def get_races(
-    db: DatabaseDeb,
+    db: SessionDep,
     limit: Optional[int] = Query(
         None, description="Number of latest races to return, or all races if omitted"
     ),
@@ -48,10 +48,10 @@ async def get_races(
 
 
 # Provide
-@router.post("/session_drivers", response_model=List[RaceDriver])
+@router.get("/session_drivers", response_model=List[RaceDriver])
 async def session_drivers(
     session_id: int,
-    db: DatabaseDeb,
+    db: SessionDep,
     _=Depends(verify_token),
 ):
     try:
@@ -79,7 +79,7 @@ async def session_drivers(
 @router.post("/guess")
 async def user_session_guess(
     guess: Guess,
-    db: DatabaseDeb,
+    db: SessionDep,
     _=Depends(verify_token),
 ):
     try:
@@ -103,7 +103,7 @@ async def user_session_guess(
 # or cache some and only request at regular intervals, probably need to use redis here
 @router.post("/session_standing", response_model=Standings)
 async def session_standing(
-    db: DatabaseDeb,
+    db: SessionDep,
     session_key: int = Query(None, description="Session key of the requested results"),
     _=Depends(verify_token),
 ):

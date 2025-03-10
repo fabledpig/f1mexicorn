@@ -6,7 +6,6 @@ class User(SQLModel, table=True):
     user_id: Optional[int] = Field(default=None, primary_key=True)
     username: str = Field(max_length=50)
     email: str = Field(max_length=100, unique=True)
-
     guesses: List["Guess"] = Relationship(back_populates="user", cascade_delete=True)
 
 
@@ -40,8 +39,12 @@ class RaceDriver(SQLModel, table=True):
 
 class Guess(SQLModel, table=True):
     guess_id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(foreign_key="user.user_id")
-    race_id: int = Field(foreign_key="race.race_id")
+    user_id: int = Field(
+        sa_column=Column(Integer, ForeignKey("user.user_id", ondelete="CASCADE"))
+    )
+    race_id: int = Field(
+        sa_column=Column(Integer, ForeignKey("race.race_id", ondelete="CASCADE"))
+    )
     position_1_driver_id: int = Field(foreign_key="racedriver.race_driver_id")
     position_2_driver_id: int = Field(foreign_key="racedriver.race_driver_id")
     position_3_driver_id: int = Field(foreign_key="racedriver.race_driver_id")
