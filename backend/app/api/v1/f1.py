@@ -11,7 +11,8 @@ from app.core.dependencies import get_db_session, verify_token
 from app.core.config import settings
 from app.services.database.race_service import RaceService
 from app.services.database.user_service import UserService
-
+from app.services.database.race_driver_service import RaceDriverService
+from app.services.database.race_result_service import RaceResultService
 
 router = APIRouter()
 
@@ -55,7 +56,7 @@ async def session_drivers(
     _=Depends(verify_token),
 ):
     try:
-        session_drivers = RaceService.get_session_drivers(db, session_id)
+        session_drivers = RaceDriverService.get_session_drivers(db, session_id)
         if not session_drivers:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -108,7 +109,7 @@ async def session_standing(
     _=Depends(verify_token),
 ):
     try:
-        driver_numbers_in_top = RaceService.get_race_standing(db, session_key)
+        driver_numbers_in_top = RaceResultService.get_race_standing(db, session_key)
 
     except SQLAlchemyError as e:
         raise HTTPException(

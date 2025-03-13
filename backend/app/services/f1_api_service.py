@@ -11,22 +11,58 @@ For now get the following info for basic functionality
 - sessions
 """
 
-
 class F1API:
     BASE_URL = "https://api.openf1.org/v1"
 
     @staticmethod
-    def _get(endpoint, params=None):
+    def _get(endpoint, params=None, retries=3, backoff_factor=2):
         url = f"{F1API.BASE_URL}/{endpoint}"
-        response = requests.get(url, params=params)
-        # Check if rate limit was exceeded (HTTP status code 429)
-        if response.status_code == 429:
-            retry_after = int(response.headers.get("Retry-After", 60))
-            print(f"Rate limit exceeded. Retrying in {retry_after} seconds...")
-            time.sleep(retry_after)
-            return F1API._get(endpoint, params)
+        
+        for attempt in range(retries):
+            try:
+                response = requests.get(url, params=params, timeout=30)
+                
+                # Log error responses
+                if response.status_code >= 400:
+                    print(f"Error {response.status_code}: {response.text}")
 
-        return response.json()
+                # Handle rate limiting (429 Too Many Requests)
+                if response.status_code == 429:
+                    retry_after = int(response.headers.get("Retry-After", 60))
+                    print(f"Rate limit exceeded. Retrying in {retry_after} seconds...")
+                    time.sleep(retry_after)
+                    continue  # Retry immediately after sleeping
+
+                # Handle 5xx errors with retries
+                if 500 <= response.status_code < 600:
+                    if attempt < retries - 1:
+                        wait_time = backoff_factor ** attempt
+                        print(f"Server error {response.status_code}. Retrying in {wait_time} seconds...")
+                        time.sleep(wait_time)
+                        continue
+                    else:
+                        print(f"Server error {response.status_code}. No more retries left.")
+                        return None
+
+                # Handle successful but empty responses
+                if response.status_code == 200:
+                    if not response.content.strip():  # Check if response is empty
+                        print("Warning: API returned an empty response.")
+                        return None
+                    try:
+                        return response.json()
+                    except requests.exceptions.JSONDecodeError:
+                        print("Warning: API returned invalid JSON.")
+                        return None
+                
+                # Return response for other success cases
+                return response.json()
+
+            except requests.exceptions.RequestException as e:
+                print(f"Request failed: {e}")
+                time.sleep(backoff_factor ** attempt)  # Exponential backoff before retry
+
+        return None  # Return None if all retries fail
 
     # Get all meetings in a given year
     @staticmethod
@@ -69,4 +105,9 @@ class F1API:
         params["position"] = position_number
         # unfortunately F1 open api return the list of drivers associated with that
         # position throuhgout the race, so we only need the last elemen
-        return F1API._get("position", params)[:1][0]
+        result = F1API._get("position", params)
+        if not result:  # Prevents 'NoneType' errors
+            print(f"No data for session {session_key}, position {position_number}")
+            return None
+
+        return result[:1][0] if result else None  # Ensures result is not None
