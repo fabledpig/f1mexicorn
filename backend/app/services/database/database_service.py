@@ -2,7 +2,7 @@ import logging
 from typing import List
 
 from sqlmodel import Session
-from app.services.f1_api_service import F1API
+from app.services.f1openapi.f1_api_service import F1API
 from sqlalchemy.exc import SQLAlchemyError
 from app.services.database.race_service import RaceService
 from app.services.database.race_driver_service import RaceDriverService

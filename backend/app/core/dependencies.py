@@ -8,10 +8,8 @@ from fastapi.security import (
 )
 from sqlmodel import Session
 from app.core.config import settings
-from app.services.database.connector import MYSQLDB
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
-
 
 oauth2_scheme = HTTPBearer()
 
