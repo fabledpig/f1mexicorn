@@ -34,12 +34,13 @@ async def google_auth(
         },
     )
     token_id = response.json().get("id_token")
+    
     if not token_id:
         raise HTTPException(status_code=400, detail="Token ID not found in response")
     # Verify the Google token
     try:
         id_user_info = id_token.verify_oauth2_token(
-            token_id, requests.Request(), client_id
+            token_id, requests.Request(), client_id, 10
         )
         # Create a JWT token and return it
         access_token = create_access_token(

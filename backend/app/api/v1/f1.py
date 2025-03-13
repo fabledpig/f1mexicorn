@@ -5,8 +5,8 @@ from typing_extensions import Annotated
 from fastapi import Depends, Query, APIRouter, HTTPException, status
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.models.sql_models import RaceDriver, Guess, Race
-from app.models.results import Standings
+from app.models.sql_models import RaceDriver, Race, Guess
+from app.models.pydantic_models import Standings
 from app.core.dependencies import get_db_session, verify_token
 from app.core.config import settings
 from app.services.database.race_service import RaceService
@@ -21,14 +21,14 @@ SessionDep = Annotated[Session, Depends(get_db_session)]
 
 @router.get("/sessions", response_model=List[Race])
 async def get_races(
-    db: SessionDep,
+    session: SessionDep,
     limit: Optional[int] = Query(
         None, description="Number of latest races to return, or all races if omitted"
     ),
     _=Depends(verify_token),
 ):
     try:
-        races = RaceService.get_races(db, limit)
+        races = RaceService.get_races(session, limit)
 
         if not races:
             raise HTTPException(
@@ -52,11 +52,11 @@ async def get_races(
 @router.get("/session_drivers", response_model=List[RaceDriver])
 async def session_drivers(
     session_id: int,
-    db: SessionDep,
+    session: SessionDep,
     _=Depends(verify_token),
 ):
     try:
-        session_drivers = RaceDriverService.get_session_drivers(db, session_id)
+        session_drivers = RaceDriverService.get_session_drivers(session, session_id)
         if not session_drivers:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -80,12 +80,13 @@ async def session_drivers(
 @router.post("/guess")
 async def user_session_guess(
     guess: Guess,
-    db: SessionDep,
+    session: SessionDep,
     _=Depends(verify_token),
 ):
     try:
-        UserService.add_guess(db, guess)
-        return {"message": "Guess added successfully", "guess_id": guess.id}
+        UserService.add_guess(session, guess)
+        return {"message": "Guess added successfully",
+                "guess": guess}
 
     except SQLAlchemyError as e:
         raise HTTPException(
@@ -122,5 +123,5 @@ async def session_standing(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"An unexpected error occurred: {str(e)}",
         )
-
+    print(driver_numbers_in_top)
     return Standings(session_key=session_key, standings=driver_numbers_in_top)

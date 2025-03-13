@@ -2,8 +2,8 @@
 from sqlalchemy import and_
 from sqlmodel import Session, select
 from sqlalchemy.exc import SQLAlchemyError
-from app.models.sql_models import Race, RaceDriver, RaceResult
-from app.models.results import DriverPosition
+from app.models.sql_models import RaceDriver, RaceResult
+from app.models.pydantic_models import DriverPosition
 
 
 class RaceResultService:
@@ -92,6 +92,7 @@ class RaceResultService:
                         driver_name=driver_at_position.driver_name,
                     )
                 )
+            return driver_numbers_in_top
         except SQLAlchemyError as e:
             session.rollback()
             print(f"An error occurred: {e}")

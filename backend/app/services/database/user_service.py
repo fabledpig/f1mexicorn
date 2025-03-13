@@ -46,7 +46,10 @@ class UserService:
             )
             session.add(new_guess)
             session.commit()
-            print("Guess added successfully")
+            print(f"Guess added successfully with guess_id: {new_guess.guess_id}")
         except SQLAlchemyError as e:
+            # TODO THIS WILL CATCH SO FASTAPI WILL RETURN 200
+            # REWORK EXCEPTION HANDLING
             session.rollback()
             print("Error adding guess:", e)
+            raise e

@@ -39,8 +39,9 @@ class RaceDriver(SQLModel, table=True):
 
 class Guess(SQLModel, table=True):
     guess_id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: int = Field(
-        sa_column=Column(Integer, ForeignKey("user.user_id", ondelete="CASCADE"))
+    user_id: Optional[int] = Field(
+        default=None,
+        sa_column=Column(Integer, ForeignKey("user.user_id", ondelete="CASCADE"), nullable=False)
     )
     race_id: int = Field(
         sa_column=Column(Integer, ForeignKey("race.race_id", ondelete="CASCADE"))
