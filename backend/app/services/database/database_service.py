@@ -108,6 +108,7 @@ class DatabaseService:
                     driver_numbers_in_top.append(
                         F1API.get_driver_at_position_in_session(session_key, i)
                     )
+                    print(driver_numbers_in_top)
                 RaceResultService.add_race_result(
                     database_session,
                     session_key,
@@ -121,3 +122,11 @@ class DatabaseService:
             print("Error adding session result:", e)
         except Exception as e:
             print("Error:", e)
+
+    '''
+    We will use this function to peridically update the latest 
+    '''
+    @staticmethod
+    def update_latest_session_results(database_session: Session):
+        pass
+    

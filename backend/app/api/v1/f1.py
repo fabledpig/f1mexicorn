@@ -81,14 +81,16 @@ async def session_drivers(
 async def user_session_guess(
     guess: Guess,
     session: SessionDep,
-    _=Depends(verify_token),
+    user=Depends(verify_token),
 ):
     try:
+        guess.user_id = UserService.get_user(session,user["email"])[0].user_id
         UserService.add_guess(session, guess)
         return {"message": "Guess added successfully",
                 "guess": guess}
 
     except SQLAlchemyError as e:
+        session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Database error occurred: {str(e)}",
@@ -105,7 +107,7 @@ async def user_session_guess(
 # or cache some and only request at regular intervals, probably need to use redis here
 @router.post("/session_standing", response_model=Standings)
 async def session_standing(
-    db: SessionDep,
+    session: SessionDep,
     session_key: int = Query(None, description="Session key of the requested results"),
     _=Depends(verify_token),
 ):

@@ -2,7 +2,7 @@ from sqlalchemy import create_engine, text
 from sqlmodel import SQLModel, Session
 from sqlalchemy.exc import SQLAlchemyError
 from app.core.config import settings
-
+import app.models.sql_models
 
 class MYSQLDB:
     _instance = None

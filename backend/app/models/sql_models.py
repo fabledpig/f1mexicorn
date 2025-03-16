@@ -46,9 +46,9 @@ class Guess(SQLModel, table=True):
     race_id: int = Field(
         sa_column=Column(Integer, ForeignKey("race.race_id", ondelete="CASCADE"))
     )
-    position_1_driver_id: int = Field(foreign_key="racedriver.race_driver_id")
-    position_2_driver_id: int = Field(foreign_key="racedriver.race_driver_id")
-    position_3_driver_id: int = Field(foreign_key="racedriver.race_driver_id")
+    position_1_driver_id: int = Field(sa_column = Column(Integer, ForeignKey("racedriver.race_driver_id", ondelete="CASCADE")))
+    position_2_driver_id: int = Field(sa_column = Column(Integer, ForeignKey("racedriver.race_driver_id", ondelete="CASCADE")))
+    position_3_driver_id: int = Field(sa_column = Column(Integer, ForeignKey("racedriver.race_driver_id", ondelete="CASCADE")))
 
     user: User = Relationship(back_populates="guesses")
     race: Race = Relationship(back_populates="guesses")
@@ -61,8 +61,8 @@ class RaceResult(SQLModel, table=True):
             Integer, ForeignKey("race.race_id", ondelete="CASCADE"),
         )
     )
-    first_place_driver_number: int
-    second_place_driver_number: int
-    third_place_driver_number: int
+    position_1_driver_id: int
+    position_2_driver_id: int
+    position_3_driver_id: int
 
     race: "Race" = Relationship(back_populates="race_result")
