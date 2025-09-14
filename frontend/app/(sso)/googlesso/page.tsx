@@ -4,21 +4,20 @@ import { useAuth } from '@/components/auth-provider/AuthProvider';
 import { LOGIN_STATE_KEY, LoginState } from '@/components/login/Login';
 import { useGoogleAuthUsersAuthGooglePost } from '@/services/default/default';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { memo, useEffect } from 'react';
-
-let didRun = false;
+import { memo, useEffect, useRef } from 'react';
 
 export default memo(function GoogleSso() {
+  const didRun = useRef(false);
   const router = useRouter();
   const queryParams = useSearchParams();
   const { mutate: authWithGoogleSso } = useGoogleAuthUsersAuthGooglePost();
   const { login } = useAuth();
 
   useEffect(() => {
-    if (didRun) {
+    if (didRun.current) {
       return;
     }
-    didRun = true;
+    didRun.current = true;
 
     const state = queryParams.get('state');
     const loginState = JSON.parse(
@@ -46,7 +45,7 @@ export default memo(function GoogleSso() {
         },
       },
     );
-  }, []);
+  }, [authWithGoogleSso, login, router, queryParams]);
 
   return <></>;
 });
