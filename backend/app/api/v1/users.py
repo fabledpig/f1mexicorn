@@ -53,7 +53,7 @@ async def google_auth(
         return UserInfo(
             name=id_user_info.get("name"),
             email=id_user_info.get("email"),
-            access_token=AccessToken(access_token=access_token.decode("utf-8")),
+            access_token=AccessToken(access_token=access_token),
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
