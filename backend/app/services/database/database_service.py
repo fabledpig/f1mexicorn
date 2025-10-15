@@ -101,7 +101,7 @@ class DatabaseService:
             
             # compare which sessions has no drivers in db
             session_keys_without_results = set([race.race_id for race in all_f1_sessions]) - set([driver.race_id for driver in all_f1_session_results])
-            
+            print("Session keys without results:", session_keys_without_results)
             for session_key in session_keys_without_results:
                 driver_numbers_in_top = []
                 for i in range(1, 4):

@@ -110,4 +110,4 @@ class F1API:
             print(f"No data for session {session_key}, position {position_number}")
             return None
 
-        return result[:1][0] if result else None  # Ensures result is not None
+        return result[-1] if result else None  # Ensures result is not None

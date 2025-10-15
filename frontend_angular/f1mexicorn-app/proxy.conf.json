@@ -1,0 +1,11 @@
+{
+  "/login": {
+    "target": "http://localhost:4200/login",
+    "secure": false,
+    "changeOrigin": true,
+    "headers": {
+      "Cross-Origin-Opener-Policy": "same-origin-allow-popups"
+    },
+    "logLevel": "debug"
+  }
+}

@@ -9,7 +9,7 @@ class UserService:
     @staticmethod
     def add_user(session: Session, username: str, email: str):
         try:
-            if UserService.get_user(session, username, email):
+            if UserService.get_user(session, email):
                 print("User already added")
             else:
                 new_user = User(username=username, email=email)
