@@ -97,23 +97,33 @@ class RaceResultService:
         except SQLAlchemyError as e:
             session.rollback()
             print(f"An error occurred: {e}")
-
+            
     @staticmethod
     def get_winning_guess(databse_session: Session, session_id: int):
-        query_session_result = select(RaceResult).where(
-            RaceResult.race_id == session_id
-        )
-        session_result = databse_session.exec(query_session_result).first()
-        # get the correct guess:
-        query_correct_guess = select(Guess).where(
-            and_(
-                Guess.race_id == session_id,
-                Guess.position_1_driver_id == session_result.position_1_driver_id,
-                Guess.position_2_driver_id == session_result.position_2_driver_id,
-                Guess.position_3_driver_id == session_result.position_3_driver_id
+        try:
+            query_session_result = select(RaceResult).where(
+                RaceResult.race_id == session_id
             )
-        )
-        print(databse_session.exec(query_correct_guess).first())
-        return databse_session.exec(query_correct_guess).first()
-        
-        
+            session_result = databse_session.exec(query_session_result).first()
+            if not session_result:
+                print(f"No race result found for session_id: {session_id}")
+                return None
+
+            query_correct_guess = select(Guess).where(
+                and_(
+                    Guess.race_id == session_id,
+                    Guess.position_1_driver_id == session_result.position_1_driver_id,
+                    Guess.position_2_driver_id == session_result.position_2_driver_id,
+                    Guess.position_3_driver_id == session_result.position_3_driver_id
+                )
+            )
+            winning_guess = databse_session.exec(query_correct_guess).first()
+            if not winning_guess:
+                print(f"No winning guess found for session_id: {session_id}")
+            return winning_guess
+        except Exception as e:
+            databse_session.rollback()
+            print(f"An error occurred while fetching winning guess: {e}")
+            return None
+
+    

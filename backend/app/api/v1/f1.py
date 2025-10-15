@@ -22,8 +22,8 @@ SessionDep = Annotated[Session, Depends(get_db_session)]
 @router.get("/sessions", response_model=List[Race])
 async def get_races(
     session: SessionDep,
-    limit: Optional[int] = Query(
-        None, description="Number of latest races to return, or all races if omitted"
+    limit: int = Query(
+        0, description="Number of latest races to return, or all races if omitted"
     ),
     _=Depends(verify_token),
 ):
@@ -84,7 +84,7 @@ async def user_session_guess(
     user=Depends(verify_token),
 ):
     try:
-        guess.user_id = UserService.get_user(session,user["email"])[0].user_id
+        guess.user_id = UserService.get_user(session, user["email"])[0].user_id
         UserService.add_guess(session, guess)
         return {"message": "Guess added successfully",
                 "guess": guess}
@@ -105,14 +105,14 @@ async def user_session_guess(
 
 # TODO how to do this, always fetch from F1 openapi,
 # or cache some and only request at regular intervals, probably need to use redis here
-@router.post("/session_standing", response_model=Standings)
+@router.get("/session_standing", response_model=Standings)
 async def session_standing(
     session: SessionDep,
     session_key: int = Query(None, description="Session key of the requested results"),
     _=Depends(verify_token),
 ):
     try:
-        driver_numbers_in_top = RaceResultService.get_race_standing(db, session_key)
+        driver_numbers_in_top = RaceResultService.get_race_standing(session, session_key)
 
     except SQLAlchemyError as e:
         raise HTTPException(

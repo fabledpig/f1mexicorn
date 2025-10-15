@@ -1,1 +1,18 @@
-<p>dashboard works!</p>
+<div class="dashboard-container">
+  <h1>Dashboard</h1>
+  
+  <div class="user-info" *ngIf="userInfo">
+    <h2>Welcome, {{ userInfo.name }}!</h2>
+    <p>Email: {{ userInfo.email }}</p>
+  </div>
+  
+  <button (click)="logout()" class="logout-btn">Logout</button>
+</div>
+
+<div class="navigation">
+    <a routerLink="/some-other-page" class="nav-link">Go to Some Other Page</a>
+    <a routerLink="/another-page" class="nav-link">Go to Another Page</a>
+    <a routerLink="/yet-another-page" class="nav-link">Go to Yet Another Page</a>
+
+
+</div>

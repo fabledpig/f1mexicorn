@@ -31,7 +31,6 @@ class RaceDriver(SQLModel, table=True):
     )
     driver_number: int
     driver_name: str = Field(max_length=100)
-    nationality: str = Field(max_length=50, nullable=True)
     team: str = Field(max_length=50, nullable=True)
 
     race: "Race" = Relationship(back_populates="race_drivers")

@@ -31,13 +31,11 @@ export class GoogleSignInComponent implements OnInit{
       client_id: clientId,
       callback: (response:any) => this.handleCredentialResponse(response)
     });
-    
-  
     const button = document.getElementById('google-signin-button');
     if (button) {
       google.accounts.id.renderButton(
         button,
-        { theme: 'outline', size: 'large', type: "standard" }  // customization attributes
+        { theme: 'outline', size: 'large', type: "standard" }
       );
     } else {
       console.error("Google Sign-In button element not found.");
@@ -53,10 +51,16 @@ export class GoogleSignInComponent implements OnInit{
       next: (res: any) => {
         console.log(res);
             this.ngZone.run(() => {
-              this.authService.setAuthState(true);
-              // Navigate to a different route or update the UI
+              // Store the token and user info from the backend response
+              const token = res.access_token?.access_token || res.access_token;
+              const userInfo = {
+                name: res.name,
+                email: res.email
+              };
+              
+              this.authService.setAuthState(true, token, userInfo);
               console.log("User authenticated successfully");
-              this.router.navigate(['/dashboard']); // Replace with your actual route
+              this.router.navigate(['/dashboard']);
             });
           },
           error: (err: any) => {
