@@ -1,12 +1,11 @@
 import { Component, NgZone } from '@angular/core';
 import { OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
+import { ApiService } from '../services/api.service';
 import { AuthService } from '../services/auth.service';
+import { environment } from '../../environments/environment';
 
-const clientId = '762758862056-4d4mibt265bofejjnmm5f3815bnukjge.apps.googleusercontent.com';
-const scope = 'openid email profile';
-
+const clientId = environment.googleClientId;
 declare const google: any;
 
 @Component({
@@ -19,7 +18,7 @@ export class GoogleSignInComponent implements OnInit{
     private ngZone: NgZone,
     private router: Router,
     private authService: AuthService,
-    private http: HttpClient
+    private apiService: ApiService
   ) { }
 
   ngOnInit(): void {
@@ -45,28 +44,24 @@ export class GoogleSignInComponent implements OnInit{
   }
 
   handleCredentialResponse(response: any): void {
-    this.http.post('http://localhost:8000/users/auth/google', {
-      auth_token: response.credential
-    }).subscribe({
+    this.apiService.authenticateWithGoogle(response.credential).subscribe({
       next: (res: any) => {
-        console.log(res);
-            this.ngZone.run(() => {
-              // Store the token and user info from the backend response
-              const token = res.access_token?.access_token || res.access_token;
-              const userInfo = {
-                name: res.name,
-                email: res.email
-              };
-              
-              this.authService.setAuthState(true, token, userInfo);
-              console.log("User authenticated successfully");
-              this.router.navigate(['/dashboard']);
-            });
-          },
-          error: (err: any) => {
-            console.error("Error during Google Sign-In:", err);
-          }
-
+        this.ngZone.run(() => {
+          // Store the token and user info from the backend response
+          const token = res.access_token?.access_token || res.access_token;
+          const userInfo = {
+            name: res.name,
+            email: res.email
+          };
+          
+          this.authService.setAuthState(true, token, userInfo);
+          console.log("User authenticated successfully");
+          this.router.navigate(['/dashboard']);
+        });
+      },
+      error: (err: any) => {
+        console.error("Error during Google Sign-In:", err);
+      }
     });
   }
 }

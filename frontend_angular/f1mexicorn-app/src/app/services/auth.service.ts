@@ -59,10 +59,35 @@ export class AuthService {
       // Basic JWT validation - check if it's expired
       const payload = JSON.parse(atob(token.split('.')[1]));
       const currentTime = Math.floor(Date.now() / 1000);
-      return payload.exp ? payload.exp > currentTime : true;
+      const isValid = payload.exp ? payload.exp > currentTime : true;
+      
+      // If token is expired, automatically log out
+      if (!isValid) {
+        console.log('Token expired, logging out user');
+        this.handleExpiredToken();
+      }
+      
+      return isValid;
     } catch (error) {
+      console.error('Invalid token format, logging out user');
+      this.handleExpiredToken();
       return false;
     }
+  }
+
+  private handleExpiredToken(): void {
+    // Clear stored data
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('user_info');
+    
+    // Update auth state
+    this.authState.next(false);
+    
+    // Optionally show a message to the user
+    console.log('Your session has expired. Please log in again.');
+    
+    // You could also show a toast/notification here
+    // this.notificationService.show('Session expired. Please log in again.');
   }
 
   logout(): void {

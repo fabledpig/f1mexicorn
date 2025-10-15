@@ -77,17 +77,16 @@ async def session_drivers(
         )
 
 
-@router.post("/guess")
+@router.post("/guess", response_model=Guess)
 async def user_session_guess(
     guess: Guess,
     session: SessionDep,
-    user=Depends(verify_token),
+    user=Depends(verify_token)
 ):
     try:
         guess.user_id = UserService.get_user(session, user["email"])[0].user_id
         UserService.add_guess(session, guess)
-        return {"message": "Guess added successfully",
-                "guess": guess}
+        return guess
 
     except SQLAlchemyError as e:
         session.rollback()

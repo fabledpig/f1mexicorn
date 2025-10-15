@@ -40,10 +40,3 @@ async def google_auth(
         )
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-@router.get("/user", response_model=UserInfo)
-async def get_user_info(
-    decoded_token=Depends(verify_token),
-):
-    return decoded_token
