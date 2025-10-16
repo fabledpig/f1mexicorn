@@ -2,14 +2,14 @@ from sqlalchemy import and_, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlmodel import Session
 from app.models.sql_models import RaceDriver, User, Guess
-from app.services.database.connector import MYSQLDB
 
 
 class UserService:
-    @staticmethod
-    def add_user(session: Session, username: str, email: str):
+    """Service for managing user operations."""
+    
+    def add_user(self, session: Session, username: str, email: str):
         try:
-            if UserService.get_user(session, email):
+            if self.get_user(session, email):
                 print("User already added")
             else:
                 new_user = User(username=username, email=email)
@@ -20,8 +20,7 @@ class UserService:
             session.rollback()
             print("Error adding user:", e)
 
-    @staticmethod
-    def get_user(session: Session, email: str):
+    def get_user(self, session: Session, email: str):
         try:
             sql_filter = select(User).where(
                 and_(User.email == email)
@@ -31,8 +30,8 @@ class UserService:
             session.rollback()
             print(f"An error occurred: {e}")
 
-    @staticmethod
     def add_guess(
+        self,
         session: Session,
         guess: Guess,
     ):

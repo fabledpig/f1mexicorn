@@ -5,19 +5,21 @@ from fastapi import Depends, APIRouter, HTTPException
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from app.models.user import GoogleAuthorizationToken, AccessToken, UserInfo
-from app.core.dependencies import create_access_token, get_db_session, verify_token
+from app.core.dependencies import create_access_token, get_db_session, verify_token, get_user_service
 from app.core.config import settings
 from app.services.database.user_service import UserService
 
 router = APIRouter()
 
 SessionDep = Annotated[Session, Depends(get_db_session)]
+UserServiceDep = Annotated[UserService, Depends(get_user_service)]
 
 
 @router.post("/auth/google", response_model=UserInfo)
 async def google_auth(
     request: GoogleAuthorizationToken,
     db: SessionDep,
+    user_service: UserServiceDep,
 ) -> UserInfo:
     client_id = settings.client_id
     try:
@@ -31,7 +33,7 @@ async def google_auth(
         print(access_token)
 
         # Add to db the existing user (will only add if new)
-        UserService.add_user(db, id_user_info.get("name"), id_user_info.get("email"))
+        user_service.add_user(db, id_user_info.get("name"), id_user_info.get("email"))
 
         return UserInfo(
             name=id_user_info.get("name"),

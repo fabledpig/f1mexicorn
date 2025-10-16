@@ -8,8 +8,14 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.models.sql_models import RaceDriver, Race, Guess
 from app.models.pydantic_models import Standings
-from app.core.dependencies import get_db_session, verify_token
-from app.core.config import settings
+from app.core.dependencies import (
+    get_db_session, 
+    verify_token,
+    get_race_service,
+    get_user_service,
+    get_race_driver_service,
+    get_race_result_service
+)
 from app.services.database.race_service import RaceService
 from app.services.database.user_service import UserService
 from app.services.database.race_driver_service import RaceDriverService
@@ -17,19 +23,25 @@ from app.services.database.race_result_service import RaceResultService
 
 router = APIRouter()
 
+# Type aliases for dependency injection
 SessionDep = Annotated[Session, Depends(get_db_session)]
+RaceServiceDep = Annotated[RaceService, Depends(get_race_service)]
+UserServiceDep = Annotated[UserService, Depends(get_user_service)]
+RaceDriverServiceDep = Annotated[RaceDriverService, Depends(get_race_driver_service)]
+RaceResultServiceDep = Annotated[RaceResultService, Depends(get_race_result_service)]
 
 
 @router.get("/sessions", response_model=List[Race])
 async def get_races(
     session: SessionDep,
+    race_service: RaceServiceDep,
     limit: int = Query(
         0, description="Number of latest races to return, or all races if omitted"
     ),
     _=Depends(verify_token),
 ):
     try:
-        races = RaceService.get_races(session, limit)
+        races = race_service.get_races(session, limit)
 
         if not races:
             raise HTTPException(
@@ -54,10 +66,11 @@ async def get_races(
 async def session_drivers(
     session_id: int,
     session: SessionDep,
+    race_driver_service: RaceDriverServiceDep,
     _=Depends(verify_token),
 ):
     try:
-        session_drivers = RaceDriverService.get_session_drivers(session, session_id)
+        session_drivers = race_driver_service.get_session_drivers(session, session_id)
         if not session_drivers:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -82,9 +95,10 @@ async def session_drivers(
 async def user_session_guess(
     guess: Guess,
     session: SessionDep,
+    user_service: UserServiceDep,
 ):
     try:
-        UserService.add_guess(session, guess)
+        user_service.add_guess(session, guess)
         return guess
 
     except SQLAlchemyError as e:
@@ -107,11 +121,12 @@ async def user_session_guess(
 @router.get("/session_standing", response_model=Standings)
 async def session_standing(
     session: SessionDep,
+    race_result_service: RaceResultServiceDep,
     session_key: int = Query(None, description="Session key of the requested results"),
     _=Depends(verify_token),
 ):
     try:
-        driver_numbers_in_top = RaceResultService.get_race_standing(session, session_key)
+        driver_numbers_in_top = race_result_service.get_race_standing(session, session_key)
 
     except SQLAlchemyError as e:
         raise HTTPException(
@@ -124,5 +139,6 @@ async def session_standing(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"An unexpected error occurred: {str(e)}",
         )
-    print(driver_numbers_in_top)
+    
+    logging.info(f"Retrieved standings for session {session_key}: {driver_numbers_in_top}")
     return Standings(session_key=session_key, standings=driver_numbers_in_top)

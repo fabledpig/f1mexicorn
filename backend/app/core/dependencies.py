@@ -8,6 +8,17 @@ from fastapi.security import (
 )
 from sqlmodel import Session
 from app.core.config import settings
+from app.services.database.connector import get_db_manager
+
+
+from app.core.container import (
+    get_f1_api,
+    get_database_service, 
+    get_race_service,
+    get_race_driver_service,
+    get_race_result_service,
+    get_user_service
+)
 
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
@@ -15,6 +26,7 @@ oauth2_scheme = HTTPBearer()
 
 
 def verify_token(token: HTTPAuthorizationCredentials = Depends(oauth2_scheme)):
+    """Verify JWT token and return payload."""
     try:
         payload = jwt.decode(
             token.credentials, settings.secret_key, algorithms=["HS256"]
@@ -40,9 +52,10 @@ def create_access_token(data: dict, expires_delta: datetime.timedelta = None):
     return encoded_jwt
 
 
-def get_db_session(request: Request) -> Generator[Session, None, None]:
-    session = request.app.state.db.get_session()
-    try:
+def get_db_session() -> Generator[Session, None, None]:
+    """
+    FastAPI dependency for database sessions.
+    Uses the new singleton database manager.
+    """
+    with get_db_manager().get_session_context() as session:
         yield session
-    finally:
-        session.close()
