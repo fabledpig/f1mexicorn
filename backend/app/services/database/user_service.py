@@ -38,18 +38,18 @@ class UserService:
     ):
         # Check whether the guess is correct:
         sql_filter_1 = select(RaceDriver).where(and_(
-            RaceDriver.race_id == guess.race_id, RaceDriver.race_driver_id == guess.position_1_driver_id
+            RaceDriver.race_id == guess.race_id, RaceDriver.driver_number == guess.position_1_driver_id
         ))
         sql_filter_2 = select(RaceDriver).where(and_(
-            RaceDriver.race_id == guess.race_id, RaceDriver.race_driver_id == guess.position_2_driver_id
+            RaceDriver.race_id == guess.race_id, RaceDriver.driver_number == guess.position_2_driver_id
         ))
         sql_filter_3 = select(RaceDriver).where(and_(
-            RaceDriver.race_id == guess.race_id, RaceDriver.race_driver_id == guess.position_3_driver_id
+            RaceDriver.race_id == guess.race_id, RaceDriver.driver_number == guess.position_3_driver_id
         ))
         
         if session.exec(sql_filter_1).first() and  session.exec(sql_filter_2).first() and  session.exec(sql_filter_3).first():
             new_guess = Guess(
-                user_id=guess.user_id,
+                user_email=guess.user_email,
                 race_id=guess.race_id,
                 position_1_driver_id=guess.position_1_driver_id,
                 position_2_driver_id=guess.position_2_driver_id,

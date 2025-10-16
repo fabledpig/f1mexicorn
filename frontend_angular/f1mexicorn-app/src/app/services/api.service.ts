@@ -47,7 +47,7 @@ export class ApiService {
   }
 
   postGuess(guess: Guess): Observable<Guess> {
-    return this.http.post<Guess>(`${this.baseUrl}/f1/guesses`, guess)
+    return this.http.post<Guess>(`${this.baseUrl}/f1/guess`, guess)
       .pipe(
         catchError(this.handleError)
       );

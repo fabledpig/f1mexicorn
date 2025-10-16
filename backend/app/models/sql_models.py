@@ -1,13 +1,11 @@
-from sqlmodel import Column, Integer, SQLModel, Field, Relationship, ForeignKey
+from sqlmodel import Column, Integer, String, SQLModel, Field, Relationship, ForeignKey
 from typing import Optional, List
 
 
 class User(SQLModel, table=True):
-    user_id: Optional[int] = Field(default=None, primary_key=True)
     username: str = Field(max_length=50)
-    email: str = Field(max_length=100, unique=True)
+    email: str = Field(max_length=100, unique=True, primary_key=True)
     guesses: List["Guess"] = Relationship(back_populates="user", cascade_delete=True)
-
 
 class Race(SQLModel, table=True):
     race_id: Optional[int] = Field(default=None, primary_key=True)
@@ -38,9 +36,9 @@ class RaceDriver(SQLModel, table=True):
 
 class Guess(SQLModel, table=True):
     guess_id: Optional[int] = Field(default=None, primary_key=True)
-    user_id: Optional[int] = Field(
-        default=None,
-        sa_column=Column(Integer, ForeignKey("user.user_id", ondelete="CASCADE"), nullable=False)
+    user_email: str = Field(
+        max_length=100,
+        sa_column=Column(String(100), ForeignKey("user.email", ondelete="CASCADE"), nullable=False)
     )
     race_id: int = Field(
         sa_column=Column(Integer, ForeignKey("race.race_id", ondelete="CASCADE"))

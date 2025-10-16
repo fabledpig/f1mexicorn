@@ -21,7 +21,7 @@
         #predictionList="cdkDropList"
         [cdkDropListData]="prediction"
         [cdkDropListConnectedTo]="[driverList]"
-        (cdkDropListDropped)="drop($event)">
+        (cdkDropListDropped)="dropBack($event)">
         <div *ngFor="let driver of prediction; let i = index" class="driver-box" cdkDrag>
             <span class="driver-name">{{ driver.driver_name }}</span>
             &nbsp;

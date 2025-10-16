@@ -1,5 +1,5 @@
 export interface Race {
-    race_id: number;
+    race_id: number | null;
     race_name: string;
     race_type: string;
     race_date: string;
@@ -15,18 +15,18 @@ export interface Driver {
 
 export interface Guess {
     guessId?: number;
-    userId: number;
-    raceId: number;
-    position1DriverId: number;
-    position2DriverId: number;
-    position3DriverId: number;
+    user_email: string;
+    race_id: number;
+    position_1_driver_id: number;
+    position_2_driver_id: number;
+    position_3_driver_id: number;
 }
 export interface RaceResult {
-    resultId: number;
-    raceId: number;
-    position1DriverId: number;
-    position2DriverId: number;
-    position3DriverId: number;
+    result_id: number | null;
+    race_id: number;
+    position_1_driver_id: number;
+    position_2_driver_id: number;
+    position_3_driver_id: number;
 }
 
 export interface DriverStanding {

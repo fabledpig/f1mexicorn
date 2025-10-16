@@ -1,3 +1,4 @@
+import logging
 from typing import List, Optional
 from sqlmodel import Session
 from typing_extensions import Annotated
@@ -81,10 +82,8 @@ async def session_drivers(
 async def user_session_guess(
     guess: Guess,
     session: SessionDep,
-    user=Depends(verify_token)
 ):
     try:
-        guess.user_id = UserService.get_user(session, user["email"])[0].user_id
         UserService.add_guess(session, guess)
         return guess
 
@@ -96,6 +95,7 @@ async def user_session_guess(
         )
 
     except Exception as e:
+        logging.error(f"Error occurred while adding guess: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"An unexpected error occurred: {str(e)}",
