@@ -3,6 +3,7 @@ import { Router, RouterModule, Routes } from '@angular/router';
 import { GoogleSignInComponent } from './google-sign-in/google-sign-in.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { authGuard } from './guards/auth.guard';
+import { RaceDriversComponent } from './race-drivers/race-drivers.component';
 
 const routes: Routes = [
   {
@@ -18,7 +19,12 @@ const routes: Routes = [
       return true;
     }]
   },
-  { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
+  { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard],
+    children: [
+      { path: '', redirectTo: 'overview', pathMatch: 'full' },
+      { path: 'overview', component: RaceDriversComponent }
+    ]
+   },
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: '**', redirectTo: '/login' }
 ];

@@ -5,6 +5,18 @@
     <h2>Welcome, {{ userInfo.name }}!</h2>
     <p>Email: {{ userInfo.email }}</p>
   </div>
+
+  <div>
+    <nav class="dashboard-nav">
+        <a routerLink="/dashboard/overview" routerLinkActive="active">Overview</a>
+    </nav>
+  </div>
+
+  <router-outlet></router-outlet>
   
+  <div>
   <button (click)="logout()" class="logout-btn">Logout</button>
+  </div>
 </div>
+
+

@@ -1,0 +1,31 @@
+<h3>Drivers of the next race</h3>
+<h4>{{ race.race_name }} - {{ race.race_date | date }}</h4>
+
+<div class="lists-container">
+    <div 
+        cdkDropList 
+        class="driver-list"
+        #driverList="cdkDropList"
+        [cdkDropListData]="drivers"
+        [cdkDropListConnectedTo]="[predictionList]"
+        (cdkDropListDropped)="drop($event)">
+        <div *ngFor="let driver of drivers; let i = index" class="driver-box" cdkDrag>
+            <span class="driver-name">{{ driver.driver_name }}</span>
+            &nbsp;
+            <span class="team">{{ driver.team }}</span>
+        </div>
+    </div>
+    <div
+        cdkDropList
+        class="driver-list"
+        #predictionList="cdkDropList"
+        [cdkDropListData]="prediction"
+        [cdkDropListConnectedTo]="[driverList]"
+        (cdkDropListDropped)="drop($event)">
+        <div *ngFor="let driver of prediction; let i = index" class="driver-box" cdkDrag>
+            <span class="driver-name">{{ driver.driver_name }}</span>
+            &nbsp;
+            <span class="team">{{ driver.team }}</span>
+    </div>
+    <button (click)="submitPrediction()" [disabled]="prediction.length < 3">Submit Prediction</button>
+</div>

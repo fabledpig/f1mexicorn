@@ -10,18 +10,24 @@ import { DashboardComponent } from './dashboard/dashboard.component';
 // Import all interceptors
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
+import { RaceDriversComponent } from './race-drivers/race-drivers.component';
+import { CdkDrag, CdkDropList } from "@angular/cdk/drag-drop";
+
 
 @NgModule({
   declarations: [
     AppComponent,
     GoogleSignInComponent,
-    DashboardComponent
+    DashboardComponent,
+    RaceDriversComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
-  ],
+    HttpClientModule,
+    CdkDrag,
+    CdkDropList
+],
   providers: [
     {
       provide: HTTP_INTERCEPTORS,

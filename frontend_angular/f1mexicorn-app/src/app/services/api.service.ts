@@ -3,68 +3,9 @@ import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http
 import { Observable, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+import { AuthResponse, GoogleAuthRequest, User } from '../interfaces/user.interface';
+import { Race, Driver, Guess, RaceResult, DriverStanding, SessionStanding } from '../interfaces/f1.interface';
 
-// Define interfaces for type safety
-export interface GoogleAuthRequest {
-  auth_token: string;
-}
-
-export interface AuthResponse {
-  name: string;
-  email: string;
-  access_token: {
-    access_token: string;
-  } | string;
-}
-
-export interface User {
-  userId: number;
-  name: string;
-  email: string;
-}
-
-export interface Race {
-    raceId: number;
-    raceName: string;
-    raceType: string;
-    raceDate: string;
-}
-
-export interface Driver {
-    driverId: number;
-    raceId: number;
-    driveNumber: number;
-    driverName: string;
-    team: string;
-}
-
-
-export interface Guess {
-    guessId?: number;
-    userId: number;
-    raceId: number;
-    position1DriverId: number;
-    position2DriverId: number;
-    position3DriverId: number;
-}
-export interface RaceResult {
-    resultId: number;
-    raceId: number;
-    position1DriverId: number;
-    position2DriverId: number;
-    position3DriverId: number;
-}
-
-export interface DriverStanding {
-    position: number;
-    driverNumber: number;
-    driverName: string;
-}
-
-export interface SessionStanding {
-    sessionId: number;
-    standings: DriverStanding[];
-}
 
 @Injectable({
   providedIn: 'root'
@@ -87,33 +28,33 @@ export class ApiService {
 
   // ===== F1 ENDPOINTS =====
   
-  getSessions(limit?: number): Observable<any> {
+  getSessions(limit?: number): Observable<Race[]> {
     const params: { [key: string]: string } = {};
     if (limit) {
       params['limit'] = limit.toString();
     }
-    return this.http.get(`${this.baseUrl}/sessions`, { params })
+    return this.http.get<Race[]>(`${this.baseUrl}/f1/sessions`, { params })
         .pipe(
             catchError(this.handleError)
         );
   }
 
-  getSessionDrivers(sessionID: number): Observable<any> {
-    return this.http.get(`${this.baseUrl}/session_drivers`, { params: { session_id: sessionID.toString() } })
+  getSessionDrivers(sessionID: number): Observable<Driver[]> {
+    return this.http.get<Driver[]>(`${this.baseUrl}/f1/session_drivers`, { params: { session_id: sessionID.toString() } })
       .pipe(
         catchError(this.handleError)
       );
   }
 
   postGuess(guess: Guess): Observable<Guess> {
-    return this.http.post<Guess>(`${this.baseUrl}/guesses`, guess)
+    return this.http.post<Guess>(`${this.baseUrl}/f1/guesses`, guess)
       .pipe(
         catchError(this.handleError)
       );
   }
 
   getSessionStandings(sessionID: number): Observable<SessionStanding> {
-    return this.http.get<SessionStanding>(`${this.baseUrl}/session_standing`, { params: { session_id: sessionID.toString() } })
+    return this.http.get<SessionStanding>(`${this.baseUrl}/f1/session_standing`, { params: { session_id: sessionID.toString() } })
       .pipe(
         catchError(this.handleError)
       );
