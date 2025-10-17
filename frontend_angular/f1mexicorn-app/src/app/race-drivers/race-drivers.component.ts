@@ -11,7 +11,8 @@ import { AuthService } from '../services/auth.service';
   styleUrls: ['./race-drivers.component.css']
 })
 export class RaceDriversComponent {
-  race: Race = null!;
+  eventFinished: boolean = false;
+  race: Race | null = null;
   drivers: Driver[] = [];
   prediction: Driver[] = [];
   constructor(
@@ -22,6 +23,7 @@ export class RaceDriversComponent {
     this.apiService.getSessions(1).pipe(
       switchMap((race: Race[]) => {
         this.race = race[0];
+        this.eventFinished = this.isNextEventFinished(this.race);
         console.log("Latest race:", this.race);
         // Return the second API call
         console.log("Fetching drivers for raceId:", this.race.race_id);
@@ -71,7 +73,7 @@ export class RaceDriversComponent {
     const userEmail = this.authService.getUserInfo().email;
     const guess: Guess = {
       user_email: userEmail,
-      race_id: this.race.race_id ?? 0,
+      race_id: this.race?.race_id ?? 0,
       position_1_driver_id: this.prediction[0]?.driver_number,
       position_2_driver_id: this.prediction[1]?.driver_number,
       position_3_driver_id: this.prediction[2]?.driver_number
@@ -85,6 +87,12 @@ export class RaceDriversComponent {
         console.error("Error submitting prediction:", err);
       }
     });
+  }
+
+  isNextEventFinished(race: Race): boolean {
+    const now = new Date();
+    const raceDate = new Date(race.race_date);
+    return raceDate < now;
   }
 
 }

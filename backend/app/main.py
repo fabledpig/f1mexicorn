@@ -29,7 +29,7 @@ async def lifespan(app: FastAPI):
     logger.info("Shutting down F1 application...")
     
     # Close database connections
-    get_db_manager.close()
+    get_db_manager().close()
     
     # Reset container if needed
     if hasattr(app.state, 'container'):

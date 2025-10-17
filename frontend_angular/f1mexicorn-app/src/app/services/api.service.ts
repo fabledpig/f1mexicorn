@@ -46,6 +46,13 @@ export class ApiService {
       );
   }
 
+  getGuess(): Observable<Guess> {
+    return this.http.get<Guess>(`${this.baseUrl}/f1/guess`)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
   postGuess(guess: Guess): Observable<Guess> {
     return this.http.post<Guess>(`${this.baseUrl}/f1/guess`, guess)
       .pipe(

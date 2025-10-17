@@ -144,3 +144,6 @@ frontend/api.json
 
 # Generated from OpenAPI description
 frontend/services
+
+#celery beat schedule file
+**/*celerybeat-schedule*

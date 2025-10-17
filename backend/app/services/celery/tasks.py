@@ -36,3 +36,7 @@ def update_database():
             "status": "error",
             "error": str(e)
         }
+        
+@celery_app.task
+def update_session_result():
+    raise NotImplementedError("This task is not yet implemented.")

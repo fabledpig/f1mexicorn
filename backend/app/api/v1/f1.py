@@ -63,7 +63,7 @@ async def get_races(
 
 # Provide
 @router.get("/session_drivers", response_model=List[RaceDriver])
-async def session_drivers(
+async def get_session_drivers(
     session_id: int,
     session: SessionDep,
     race_driver_service: RaceDriverServiceDep,
@@ -90,9 +90,31 @@ async def session_drivers(
             detail=f"An unexpected error occurred: {str(e)}",
         )
 
+@router.get("/guess", response_model=Optional[Guess])
+async def get_user_guess(
+    session: SessionDep,
+    user_service: UserServiceDep,
+    verify_token: str = Depends(verify_token),
+):
+    try:
+        user_email = verify_token.get("email")
+        user_guess = user_service.get_guess(session, user_email)
+        print(user_guess)
+        return user_guess
+    except SQLAlchemyError as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Database error occurred: {str(e)}",
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"An unexpected error occurred: {str(e)}",
+        )
+
 
 @router.post("/guess", response_model=Guess)
-async def user_session_guess(
+async def post_user_guess(
     guess: Guess,
     session: SessionDep,
     user_service: UserServiceDep,
@@ -119,7 +141,7 @@ async def user_session_guess(
 # TODO how to do this, always fetch from F1 openapi,
 # or cache some and only request at regular intervals, probably need to use redis here
 @router.get("/session_standing", response_model=Standings)
-async def session_standing(
+async def get_session_standing(
     session: SessionDep,
     race_result_service: RaceResultServiceDep,
     session_key: int = Query(None, description="Session key of the requested results"),

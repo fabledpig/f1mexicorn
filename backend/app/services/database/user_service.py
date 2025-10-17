@@ -30,6 +30,22 @@ class UserService:
             session.rollback()
             print(f"An error occurred: {e}")
 
+
+    def get_guess(
+        self,
+        session: Session,
+        user_email: str
+    ) -> Guess:
+        try:
+            sql_filter = select(Guess).where(Guess.user_email == user_email)
+            return session.exec(sql_filter).first()[0]  # Unpack the tuple
+        except SQLAlchemyError as e:
+            session.rollback()
+            print(f"An error occurred: {e}")
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+
+
     def add_guess(
         self,
         session: Session,
