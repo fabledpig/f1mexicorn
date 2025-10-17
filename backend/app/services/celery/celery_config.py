@@ -31,4 +31,8 @@ celery_app.conf.beat_schedule = {
         "task": "app.services.celery.tasks.update_database",
         "schedule": 600.0,
     },
+    "update_session_result": {
+        "task": "app.services.celery.tasks.update_session_result",
+        "schedule": 30.0,
+    },
 }

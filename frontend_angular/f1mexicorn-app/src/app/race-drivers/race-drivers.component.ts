@@ -1,9 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, NgZone } from '@angular/core';
 import { Guess, Driver, Race } from '../interfaces/f1.interface';
 import { ApiService } from '../services/api.service';
 import { switchMap } from 'rxjs/operators';
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray, transferArrayItem} from '@angular/cdk/drag-drop';
 import { AuthService } from '../services/auth.service';
+import { SseService } from '../services/sse.service';
+import { Observable } from 'rxjs/internal/Observable';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-race-drivers',
@@ -15,9 +18,14 @@ export class RaceDriversComponent {
   race: Race | null = null;
   drivers: Driver[] = [];
   prediction: Driver[] = [];
+  message$: Observable<string> = new Observable<string>();
+  private sseSubscription: Subscription | null = null;
+  
   constructor(
     private apiService: ApiService,
-    private authService: AuthService
+    private authService: AuthService,
+    private sseService: SseService,
+    private ngZone: NgZone
   ) {}
   ngOnInit(): void {
     this.apiService.getSessions(1).pipe(
@@ -38,6 +46,21 @@ export class RaceDriversComponent {
         console.error("Error fetching data:", err);
       }
     });
+
+    this.message$ = this.sseService.connect();
+    this.sseSubscription = this.message$.subscribe({
+      next: (message: string) => {
+        this.ngZone.run(() => {
+          console.log("SSE Message received:", message);
+          this.eventFinished = !this.eventFinished;
+          console.log("Event finished changed to:", this.eventFinished);
+        });
+      },
+      error: (err) => {
+        console.error("SSE Error:", err);
+      }
+    })
+
   }
 
   drop(event: CdkDragDrop<Driver[]>) {

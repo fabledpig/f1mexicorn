@@ -4,6 +4,7 @@ from sqlmodel import Session
 from typing_extensions import Annotated
 
 from fastapi import Depends, Query, APIRouter, HTTPException, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.models.sql_models import RaceDriver, Race, Guess
@@ -14,7 +15,8 @@ from app.core.dependencies import (
     get_race_service,
     get_user_service,
     get_race_driver_service,
-    get_race_result_service
+    get_race_result_service,
+    event_queue
 )
 from app.services.database.race_service import RaceService
 from app.services.database.user_service import UserService
@@ -164,3 +166,15 @@ async def get_session_standing(
     
     logging.info(f"Retrieved standings for session {session_key}: {driver_numbers_in_top}")
     return Standings(session_key=session_key, standings=driver_numbers_in_top)
+
+
+async def event_stream():
+    while True:
+        data = await event_queue.get()
+        logging.info(f'ARRIVED DATA: {data}')
+        yield f"data: {data}\n\n"
+
+# Experimental sse endpoint
+@router.get("/session_standing_sse" )
+async def get_session_standing_sse():
+    return StreamingResponse(event_stream(), media_type="text/event-stream")

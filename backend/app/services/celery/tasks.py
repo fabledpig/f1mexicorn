@@ -3,6 +3,7 @@ from datetime import datetime
 from app.services.database.database_service import DatabaseService
 from app.services.f1openapi.f1_api_service import F1API
 from app.services.celery.celery_config import celery_app
+import redis
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -10,6 +11,7 @@ logger = logging.getLogger(__name__)
 # Create service instances (these could be injected via DI container in the future)
 f1_api = F1API()
 db_service = DatabaseService(f1_api)
+r = redis.Redis(host='localhost', port=6379, decode_responses=True)
 
 @celery_app.task
 def update_database():
@@ -39,4 +41,6 @@ def update_database():
         
 @celery_app.task
 def update_session_result():
-    raise NotImplementedError("This task is not yet implemented.")
+    # TODO this is not the actual implementation but just a test for sse
+    logger.info("Starting session result update task...")
+    r.publish("session_updates", "Session result updated")
