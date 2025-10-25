@@ -3,7 +3,7 @@ from typing import List, Optional
 from sqlmodel import Session
 from typing_extensions import Annotated
 
-from fastapi import Depends, Query, APIRouter, HTTPException, status
+from fastapi import Depends, Query, APIRouter, HTTPException, Request, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -120,6 +120,7 @@ async def post_user_guess(
     guess: Guess,
     session: SessionDep,
     user_service: UserServiceDep,
+    _: str = Depends(verify_token),
 ):
     try:
         user_service.add_guess(session, guess)
@@ -133,10 +134,10 @@ async def post_user_guess(
         )
 
     except Exception as e:
-        logging.error(f"Error occurred while adding guess: {str(e)}")
+        logging.error(f"Error occurred while adding guess: {repr(e)}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=f"An unexpected error occurred: {str(e)}",
+            detail=f"An unexpected error occurred: {repr(e)}",
         )
 
 
@@ -176,5 +177,5 @@ async def event_stream():
 
 # Experimental sse endpoint
 @router.get("/session_standing_sse" )
-async def get_session_standing_sse():
-    return StreamingResponse(event_stream(), media_type="text/event-stream")
+async def get_session_standing_sse(request: Request):
+    return StreamingResponse(event_stream(request), media_type="text/event-stream")
