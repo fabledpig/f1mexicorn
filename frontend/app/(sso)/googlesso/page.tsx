@@ -37,7 +37,12 @@ export default memo(function GoogleSso() {
       },
       {
         onSuccess: (response) => {
-          login(response.data.name, response.data.email, response.data.access_token);
+          if (!response.data.access_token) {
+            router.push('/');
+            return;
+          }
+
+          login(response.data.name, response.data.email, response.data.access_token.access_token);
           router.push('/');
         },
         onError: () => {
