@@ -1,5 +1,6 @@
 'use client';
 
+import axios from 'axios';
 import { createContext, PropsWithChildren, useContext, useState } from 'react';
 
 type AuthState = {
@@ -17,6 +18,7 @@ export default function AuthProvider({ children }: PropsWithChildren) {
   const [authState, setAuthState] = useState<AuthState | null>(null);
 
   const login = (name: string, email: string, access_token: string) => {
+    axios.defaults.headers.common['Authorization'] = `Bearer ${access_token}`;
     setAuthState({ name, email, access_token });
   };
 

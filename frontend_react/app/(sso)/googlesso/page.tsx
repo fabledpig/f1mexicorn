@@ -1,15 +1,14 @@
 'use client';
 
 import { useAuth } from '@/components/auth-provider/AuthProvider';
-import { LOGIN_STATE_KEY, LoginState } from '@/components/login/Login';
+import { LOGIN_STATE_KEY, LoginState, NONCE_KEY } from '@/components/login/Login';
 import { useGoogleAuthUsersAuthGooglePost } from '@/services/default/default';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { memo, useEffect, useRef } from 'react';
 
 export default memo(function GoogleSso() {
   const didRun = useRef(false);
   const router = useRouter();
-  const queryParams = useSearchParams();
   const { mutate: authWithGoogleSso } = useGoogleAuthUsersAuthGooglePost();
   const { login } = useAuth();
 
@@ -19,7 +18,8 @@ export default memo(function GoogleSso() {
     }
     didRun.current = true;
 
-    const state = queryParams.get('state');
+    const params = new URLSearchParams(window.location.hash.substring(1));
+    const state = params.get('state')!;
     const loginState = JSON.parse(
       window.localStorage.getItem(LOGIN_STATE_KEY) ?? '{}',
     ) as LoginState;
@@ -27,12 +27,24 @@ export default memo(function GoogleSso() {
     if (loginState.type !== 'GoogleSso' || loginState.data.state !== state) {
       console.error('Login state mismatch');
       router.push('/login');
+      return;
+    }
+
+    const id_token = params.get('id_token')!;
+    const payload: { nonce: string } = JSON.parse(atob(id_token.split('.')[1]));
+
+    const nonce = window.localStorage.getItem(NONCE_KEY);
+
+    if (payload.nonce !== nonce) {
+      console.error('Nonce mismatch');
+      router.push('/login');
+      return;
     }
 
     authWithGoogleSso(
       {
         data: {
-          auth_token: queryParams.get('code')!,
+          auth_token: id_token,
         },
       },
       {
@@ -50,7 +62,7 @@ export default memo(function GoogleSso() {
         },
       },
     );
-  }, [authWithGoogleSso, login, router, queryParams]);
+  }, [authWithGoogleSso, login, router]);
 
   return <></>;
 });

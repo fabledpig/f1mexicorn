@@ -15,6 +15,7 @@ export type LoginState = {
 };
 
 export const LOGIN_STATE_KEY = 'LOGIN_STATE';
+export const NONCE_KEY = 'NONCE';
 
 const bytesToBase64 = (bytes: Uint8Array): string => {
   const binString = Array.from(bytes, (byte) => String.fromCodePoint(byte)).join('');
@@ -27,6 +28,8 @@ export default memo(function LoginComponent() {
 
     window.crypto.getRandomValues(randomArray);
     const state = bytesToBase64(randomArray);
+    window.crypto.getRandomValues(randomArray);
+    const nonce = bytesToBase64(randomArray);
 
     window.localStorage.setItem(
       LOGIN_STATE_KEY,
@@ -36,7 +39,9 @@ export default memo(function LoginComponent() {
       } as LoginState),
     );
 
-    return `https://accounts.google.com/o/oauth2/v2/auth?response_type=code&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&state=${encodeURIComponent(state)}`;
+    window.localStorage.setItem(NONCE_KEY, nonce);
+
+    return `https://accounts.google.com/o/oauth2/v2/auth?response_type=id_token&client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&state=${encodeURIComponent(state)}&nonce=${encodeURIComponent(nonce)}`;
   }, []);
 
   const onClick = useCallback(() => {
