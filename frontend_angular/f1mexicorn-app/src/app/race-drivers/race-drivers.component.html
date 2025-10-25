@@ -1,11 +1,17 @@
 <ng-template #eventFinishedTemplate>
-    <h3>Next event has already finished. Predictions are closed until next event is available.</h3>
+    <div class="event-container">
+        <div class="header-section">
+            <h3 class="main-title">Next event has already finished</h3>
+            <h4 class="race-info">Predictions are closed until next event is available</h4>
+        </div>
+    </div>
 </ng-template>
 
-
-<div *ngIf="!eventFinished; else eventFinishedTemplate">
-    <h3>Drivers of the next race</h3>
-    <h4>{{ race?.race_name }} - {{ race?.race_date | date }}</h4>
+<div *ngIf="eventFinished; else eventFinishedTemplate" class="event-container">
+    <div class="header-section">
+        <h3 class="main-title">Drivers of the next race</h3>
+        <h4 class="race-info">{{ race?.race_name }} - {{ race?.race_date | date }}</h4>
+    </div>
 
     <div class="lists-container">
         <div 
@@ -15,10 +21,11 @@
             [cdkDropListData]="drivers"
             [cdkDropListConnectedTo]="[predictionList]"
             (cdkDropListDropped)="drop($event)">
-            <div *ngFor="let driver of drivers; let i = index" class="driver-box" cdkDrag>
+            <div *ngFor="let driver of drivers; let i = index" 
+                class="driver-box"
+                cdkDrag
+                [ngStyle]="getDriverBackground(driver)">
                 <span class="driver-name">{{ driver.driver_name }}</span>
-                &nbsp;
-                <span class="team">{{ driver.team }}</span>
             </div>
         </div>
         <div
@@ -28,11 +35,12 @@
             [cdkDropListData]="prediction"
             [cdkDropListConnectedTo]="[driverList]"
             (cdkDropListDropped)="dropBack($event)">
-            <div *ngFor="let driver of prediction; let i = index" class="driver-box" cdkDrag>
+            <div *ngFor="let driver of prediction; let i = index"
+                class="driver-box"
+                [ngStyle]="getDriverBackground(driver)"
+                cdkDrag>
                 <span class="driver-name">{{ driver.driver_name }}</span>
-                &nbsp;
-                <span class="team">{{ driver.team }}</span>
         </div>
     </div>
-        <button (click)="submitPrediction()" [disabled]="prediction.length < 3">Submit Prediction</button>
+        <button class="prediction-button" (click)="submitPrediction()" [disabled]="prediction.length < 3">Submit Prediction</button>
 </div>

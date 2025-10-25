@@ -3,31 +3,58 @@
   gap: 20px;              /* Space between the two lists */
   align-items: flex-start; /* Align lists to the top */
   flex-wrap: wrap;        /* Allow wrapping on small screens */
+  justify-content: center;
+}
+
+.event-container {
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.header-section {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.main-title {
+    color: white;
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.race-info {
+    color: white;
+    font-size: 1.2rem;
+    margin-top: 0.5rem;
+    opacity: 0.9;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .driver-list {
   width: 300px;
   max-width: 100%;
-  border: solid 1px #ccc;
   min-height: 60px;
-  display: flex;           /* Changed from block to flex */
-  flex-direction: column;  /* Stack items vertically */
-  background: white;
-  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
-  gap: 8px;               /* Add space between drivers */
-  padding: 8px;           /* Add some padding inside the container */
+  gap: 8px;
+  padding: 12px;
+  box-shadow: 0 4px 6px rgba(26, 115, 232, 0.1);
 }
 
 .driver-box {
     border: 1px solid #bbb;
-    color: #222;
+    color: #1f0c97;
     cursor: grab;
     display: inline-flex;              /* Changed from inline-flex to flex */
     justify-content: center;
     align-items: center;
     text-align: center;
-    background: #fafafa;
+    font-weight: 800;
     border-radius: 6px;
     position: relative;
     z-index: 2;
@@ -36,6 +63,19 @@
     min-width: unset;
     padding: 15px 18px;         /* Increased vertical padding */
     margin-bottom: 4px;         /* Add small margin between items */
+}
+
+.prediction-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    color: white;
+    background-color: #1a73e8;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(26, 115, 232, 0.2);
+    transition: background-color 200ms ease, box-shadow 200ms ease;
 }
 
 .driver-box:active {            /* Fixed selector - was .races-section */
