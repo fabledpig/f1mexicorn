@@ -1,0 +1,68 @@
+.lists-container {
+  display: flex;
+  gap: 20px;              /* Space between the two lists */
+  align-items: flex-start; /* Align lists to the top */
+  flex-wrap: wrap;        /* Allow wrapping on small screens */
+}
+
+.driver-list {
+  width: 300px;
+  max-width: 100%;
+  border: solid 1px #ccc;
+  min-height: 60px;
+  display: flex;           /* Changed from block to flex */
+  flex-direction: column;  /* Stack items vertically */
+  background: white;
+  border-radius: 4px;
+  overflow: hidden;
+  gap: 8px;               /* Add space between drivers */
+  padding: 8px;           /* Add some padding inside the container */
+}
+
+.driver-box {
+    border: 1px solid #bbb;
+    color: #222;
+    cursor: grab;
+    display: inline-flex;              /* Changed from inline-flex to flex */
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background: #fafafa;
+    border-radius: 6px;
+    position: relative;
+    z-index: 2;
+    transition: box-shadow 180ms ease;
+    box-shadow: 0 2px 4px rgba(60, 60, 60, 0.13);
+    min-width: unset;
+    padding: 15px 18px;         /* Increased vertical padding */
+    margin-bottom: 4px;         /* Add small margin between items */
+}
+
+.driver-box:active {            /* Fixed selector - was .races-section */
+    box-shadow: 0 6px 12px rgba(60, 60, 60, 0.18);
+    transform: scale(1.02);     /* Optional: slight scale on active */
+}
+
+/* Optional: Add hover effect */
+.driver-box:hover {
+    background: #f0f0f0;
+    box-shadow: 0 4px 8px rgba(60, 60, 60, 0.15);
+}
+
+/* Optional: Add drag state */
+.cdk-drag-preview {
+    box-sizing: border-box;
+    border-radius: 6px;
+    box-shadow: 0 8px 16px rgba(60, 60, 60, 0.25);
+    transform: rotate(2deg);    /* Slight rotation when dragging */
+}
+
+.cdk-drag-placeholder {
+    opacity: 0.4;
+    background: #e0e0e0;
+    border: 2px dashed #ccc;
+}
+
+.cdk-drag-animating {
+    transition: transform 300ms cubic-bezier(0, 0, 0.2, 1);
+}

@@ -2,24 +2,26 @@ from typing import List
 from sqlmodel import Session, select
 from sqlalchemy.exc import SQLAlchemyError
 from app.models.sql_models import Race
+import logging
 
 class RaceService:
     """
-    Queries associated with any type of F1 Session (Race, Qualification, Sprint)
+    Service for managing F1 Sessions (Race, Qualification, Sprint) operations.
     """
+    
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
 
-    @staticmethod
-    def get_all_races(session: Session) -> List[Race]:
+    def get_all_races(self, session: Session) -> List[Race]:
         """Fetch all records from the races table."""
         try:
             races = session.exec(select(Race)).all()
             return races
         except SQLAlchemyError as e:
-            print("Error fetching races:", e)
+            self.logger.error(f"Error fetching races: {e}")
             return []
 
-    @staticmethod
-    def add_race(session: Session, race_name, race_type, race_date, race_id=None):
+    def add_race(self, session: Session, race_name, race_type, race_date, race_id=None):
         try:
             new_race = Race(
                 race_id=race_id,
@@ -29,13 +31,12 @@ class RaceService:
             )
             session.add(new_race)
             session.commit()
-            print("Race added successfully")
+            self.logger.info("Race added successfully")
         except SQLAlchemyError as e:
             session.rollback()
-            print("Error adding race:", e)
+            self.logger.error(f"Error adding race: {e}")
 
-    @staticmethod
-    def get_races(session: Session, number_of_races: int = 0) -> List[Race]:
+    def get_races(self, session: Session, number_of_races: int = 0) -> List[Race]:
         try:
             sql_query = select(Race).order_by(Race.race_date.desc())
 
@@ -45,4 +46,5 @@ class RaceService:
             return session.exec(sql_query).all()
         except SQLAlchemyError as e:
             session.rollback()
-            print(f"An error occurred: {e}")
+            self.logger.error(f"An error occurred: {e}")
+            return []

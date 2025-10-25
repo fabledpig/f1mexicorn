@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.api_router import api_router
 
-allowed_origins = ["http://localhost:3000"]
+allowed_origins = ["http://localhost:4200"]
 
 
 class Application(FastAPI):
