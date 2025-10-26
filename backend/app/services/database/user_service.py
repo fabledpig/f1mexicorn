@@ -43,11 +43,12 @@ class UserService:
     def get_guess(
         self,
         session: Session,
-        user_email: str
+        user_email: str,
+        event_id: int
     ) -> Guess:
         try:
-            sql_filter = select(Guess).where(Guess.user_email == user_email)
-            return session.exec(sql_filter).first()  # Unpack the tuple
+            sql_filter = select(Guess).where(and_(Guess.user_email == user_email, Guess.race_id == event_id))
+            return session.exec(sql_filter).first()
         except SQLAlchemyError as e:
             session.rollback()
             print(f"An error occurred: {e}")

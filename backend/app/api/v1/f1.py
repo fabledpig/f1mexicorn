@@ -3,7 +3,7 @@ from typing import List, Optional
 from sqlmodel import Session
 from typing_extensions import Annotated
 
-from fastapi import Depends, Query, APIRouter, HTTPException, Request, status
+from fastapi import Depends, Path, Query, APIRouter, HTTPException, Request, status
 from fastapi.responses import StreamingResponse
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -92,15 +92,16 @@ async def get_session_drivers(
             detail=f"An unexpected error occurred: {str(e)}",
         )
 
-@router.get("/guess", response_model=Optional[Guess])
+@router.get("/guess/{event_id}", response_model=Optional[Guess])
 async def get_user_guess(
     session: SessionDep,
     user_service: UserServiceDep,
     verify_token: str = Depends(verify_token),
+    event_id: int = Path(..., description="Session ID for which to get the user's guess"),
 ):
     try:
         user_email = verify_token.get("email")
-        user_guess = user_service.get_guess(session, user_email)
+        user_guess = user_service.get_guess(session, user_email, event_id)
         print(user_guess)
         return user_guess
     except SQLAlchemyError as e:
@@ -169,7 +170,7 @@ async def get_session_standing(
     return Standings(session_key=session_key, standings=driver_numbers_in_top)
 
 
-async def event_stream():
+async def event_stream(request: Request):
     while True:
         data = await event_queue.get()
         logging.info(f'ARRIVED DATA: {data}')

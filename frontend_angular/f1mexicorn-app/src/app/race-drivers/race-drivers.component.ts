@@ -29,7 +29,7 @@ const teamLogos = new Map<string, string>([
 })
 export class RaceDriversComponent {
   eventFinished: boolean = false;
-  race: Race | null = null;
+  race: Race = {} as Race;
   drivers: Driver[] = [];
   prediction: Driver[] = [];
   message$: Observable<string> = new Observable<string>();
@@ -53,7 +53,7 @@ export class RaceDriversComponent {
       switchMap((drivers: Driver[]) => {
         this.drivers = drivers;
         console.log("Drivers in latest race:", drivers);
-        return this.apiService.getGuess();
+        return this.apiService.getGuess(this.race.race_id ?? 0);
       })).subscribe({
       next: (guess: Guess) => {
         this.populatePrediction(guess);

@@ -21,6 +21,9 @@
             [cdkDropListData]="drivers"
             [cdkDropListConnectedTo]="[predictionList]"
             (cdkDropListDropped)="drop($event)">
+            <div *ngIf="drivers.length === 0" class="drop-placeholder">
+                Drop items here
+            </div>
             <div *ngFor="let driver of drivers; let i = index" 
                 class="driver-box"
                 cdkDrag
@@ -35,6 +38,9 @@
             [cdkDropListData]="prediction"
             [cdkDropListConnectedTo]="[driverList]"
             (cdkDropListDropped)="dropBack($event)">
+            <div *ngIf="prediction.length === 0" class="drop-placeholder">
+                Drop items here
+            </div>
             <div *ngFor="let driver of prediction; let i = index"
                 class="driver-box"
                 [ngStyle]="getDriverBackground(driver)"
