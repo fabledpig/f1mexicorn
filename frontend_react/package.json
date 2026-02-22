@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "prepare": "cd .. && husky frontend/.husky",
+    "prepare": "cd .. && husky frontend_react/.husky",
     "generate-api-definitions": "node scripts/download-openapi-spec.mjs api.json && npx orval"
   },
   "lint-staged": {
