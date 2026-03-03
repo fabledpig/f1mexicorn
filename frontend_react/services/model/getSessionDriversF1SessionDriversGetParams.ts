@@ -4,6 +4,7 @@
  * F1 Mexicorn
  * OpenAPI spec version: 0.1.0
  */
-import type { Guess } from './guess';
 
-export type GetWinnersResultsWinnersGet200 = Guess | null;
+export type GetSessionDriversF1SessionDriversGetParams = {
+  session_id: number;
+};

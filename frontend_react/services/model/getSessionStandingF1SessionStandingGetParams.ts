@@ -5,9 +5,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type GetRacesF1SessionsGetParams = {
+export type GetSessionStandingF1SessionStandingGetParams = {
   /**
-   * Number of latest races to return, or all races if omitted
+   * Session key of the requested results
    */
-  limit?: number;
+  session_key?: number;
 };

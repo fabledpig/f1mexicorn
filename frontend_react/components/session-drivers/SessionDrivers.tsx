@@ -3,7 +3,7 @@ import { memo } from 'react';
 import Draggable from '../draggable/Draggable';
 import Driver from '../driver/Driver';
 
-type Props = { drivers: RaceDriver[]; draggable?: boolean };
+type Props = { drivers: RaceDriver[] };
 
 export default memo(function SessionDrivers(props: Props) {
   const serializeDriver = (driver: RaceDriver) => {

@@ -6,4 +6,4 @@
  */
 import type { Guess } from './guess';
 
-export type GetWinnersResultsWinnersGet200 = Guess | null;
+export type GetUserGuessF1GuessEventIdGet200 = Guess | null;
